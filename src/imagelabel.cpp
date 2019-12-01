@@ -254,8 +254,13 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
             updateLabel(*editbbox);
 
         }
-    }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton){
+    }else if(current_mode == MODE_DRAW && ev->button() == Qt::RightButton && bbox_state == DRAWING_BBOX){
+            drawLabel();
+            bbox_state = WAIT_START;
+    }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton && selected == true){
         selected = false;
+        drawLabel();
+    }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton){
         if(bbox_state == WAIT_START){
 
             bbox_origin = image_location;
@@ -472,9 +477,12 @@ void ImageLabel::keyPressEvent(QKeyEvent *event)
     if(selected && (event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)){
         selected = false;
         emit removeLabel(*editbbox);
-    }else if(event->key() == Qt::Key_Escape){
-            rubberBand->setGeometry(QRect(bbox_origin, QSize()));
+    }else if(current_mode == MODE_DRAW && event->key() == Qt::Key_Escape && bbox_state == DRAWING_BBOX){
+            drawLabel();
             bbox_state = WAIT_START;
+    }else if(current_mode == MODE_SELECT && selected == true && event->key() == Qt::Key_Escape){
+            selected = false;
+            drawLabel();
     }else{
         event->ignore();
     }
