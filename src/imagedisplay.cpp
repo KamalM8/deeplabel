@@ -2,16 +2,11 @@
 #include "ui_imagedisplay.h"
 
 std::unordered_map<std::string ,int> ImageDisplay::colour_hashmap{
-    { "Cividis", cv::COLORMAP_CIVIDIS },
-    { "Inferno", cv::COLORMAP_INFERNO },
-    { "Magma", cv::COLORMAP_MAGMA },
     { "Hot", cv::COLORMAP_HOT },
     { "Bone", cv::COLORMAP_BONE },
-    { "Plasma", cv::COLORMAP_PLASMA },
     { "Jet", cv::COLORMAP_JET },
     { "Rainbow", cv::COLORMAP_RAINBOW },
     { "Ocean", cv::COLORMAP_OCEAN },
-    { "Viridis", cv::COLORMAP_VIRIDIS }
 };
 
 ImageDisplay::ImageDisplay(QWidget *parent) :

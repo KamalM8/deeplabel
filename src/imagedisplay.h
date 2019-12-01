@@ -46,7 +46,7 @@ private:
     bool fit_to_window = false;
     double image_scale_factor = 1.0;
     bool apply_colourmap = true;
-    int colour_map = cv::COLORMAP_MAGMA;
+    int colour_map = cv::COLORMAP_PARULA;
     QImage::Format format = QImage::Format_Grayscale8;
     int bit_depth = 8;
 

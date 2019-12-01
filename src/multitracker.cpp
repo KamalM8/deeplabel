@@ -104,7 +104,8 @@ void MultiTrackerCamshift::update(const cv::Mat &image){
     QtConcurrent::blockingMap(trackers.begin(), trackers.end(), [&](auto&& tracker)
     {
         // image, roi_hist, bbox
-        cv::Rect2d bbox = updateCamshift(image, tracker.first, tracker.second.rect);
+        //cv::Rect2d bbox = updateCamshift(image, tracker.first, tracker.second.rect);
+        cv::Rect2d bbox;
 
         QRect new_roi;
         new_roi.setX(static_cast<int>(bbox.x));

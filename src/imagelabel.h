@@ -8,9 +8,11 @@
 #include <QDebug>
 #include <QRubberBand>
 #include <QResizeEvent>
+#include <QInputDialog>
+#include <QMessageBox>
 
 #include <opencv2/opencv.hpp>
-#include<boundingbox.h>
+#include <boundingbox.h>
 
 enum drawState{
     WAIT_START,
@@ -21,6 +23,13 @@ enum interactionState{
     MODE_DRAW,
     MODE_DRAW_DRAG,
     MODE_SELECT,
+};
+
+enum proximity{
+    NONE,
+    TOP_LEFT,
+    CENTER,
+    BOTTOM_RIGHT,
 };
 
 class ImageLabel : public QLabel
@@ -46,8 +55,9 @@ public slots:
     void setPixmap ( QPixmap & );
     void setImage(cv::Mat &image){this->image = image;}
     void setBoundingBoxes(QList<BoundingBox> input_bboxes);
-    void setClassname(QString classname);
+    void updateLabel(BoundingBox);
     void addLabel(QRect rect, QString classname);
+    void addLabel(BoundingBox box);
     void zoom(double factor);
 
     void setDrawMode();
@@ -68,12 +78,19 @@ private:
     QPixmap scaled_pixmap;
     QString current_classname;
     bool shouldScaleContents = false;
+    bool selected = false;
+    std::vector<std::vector<int>> colorlist;
 
     QList<BoundingBox> bboxes;
     BoundingBox selected_bbox;
+    BoundingBox* editbbox;
+    BoundingBox createbbox;
+    BoundingBox original_box;
     void drawBoundingBox(BoundingBox bbox);
     void drawBoundingBox(BoundingBox bbox, QColor colour);
-    void drawLabel(QPoint location = QPoint());
+    void drawBoundingBox(BoundingBox bbox, QColor colour, interactionState mode);
+    void drawLabel();
+    void drawEditLabel(BoundingBox bbox);
     QPoint getScaledImageLocation(QPoint location);
     QPixmap scaledPixmap(void);
 
@@ -96,6 +113,8 @@ private:
     int scaled_height;
 
     void drawBoundingBoxes(QPoint location);
+    interactionState checkMode(QPoint location);
+    proximity region;
 };
 
 #endif // IMAGELABEL_H

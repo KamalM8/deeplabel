@@ -8,6 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/tracking.hpp>
 
+
 enum OpenCVTrackerType {BOOSTING, MIL, KCF, TLD, MEDIANFLOW, GOTURN, MOSSE, CSRT};
 enum MultiTrackerType {OPENCV, CAMSHIFT};
 

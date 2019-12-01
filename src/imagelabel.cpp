@@ -122,39 +122,172 @@ QPoint ImageLabel::getScaledImageLocation(QPoint location){
     return scaled_location;
 }
 
+interactionState ImageLabel::checkMode(QPoint image_location)
+{
+    scaledPixmap();
+
+    if(scale_factor == 1.0){
+        scaled_pixmap = base_pixmap;
+    }
+
+    BoundingBox bbox;
+    for (int i = 0; i<bboxes.size(); i++) {
+        if (bboxes[i].rect.contains(image_location)){
+            editbbox = &bboxes[i];
+            original_box = bboxes[i];
+            return interactionState::MODE_SELECT;
+        }
+    }
+    return interactionState::MODE_DRAW;
+}
+
+void ImageLabel::drawEditLabel(BoundingBox bbox){
+    scaledPixmap();
+    drawBoundingBox(bbox, Qt::green, MODE_SELECT);
+    QLabel::setPixmap(scaled_pixmap);
+}
+
+void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour, interactionState mode){
+
+    if(scaled_pixmap.isNull()) return;
+
+    QPainter painter;
+    painter.begin(&scaled_pixmap);
+    QPen pen(colour, 2);
+    painter.setPen(pen);
+
+    auto scaled_bbox = bbox.rect;
+
+    scaled_bbox.setRight(static_cast<int>(scaled_bbox.right() * scale_factor));
+    scaled_bbox.setLeft(static_cast<int>(scaled_bbox.left() * scale_factor));
+    scaled_bbox.setTop(static_cast<int>(scaled_bbox.top() * scale_factor));
+    scaled_bbox.setBottom(static_cast<int>(scaled_bbox.bottom() * scale_factor));
+
+    if(bbox.classname != ""){
+
+        //painter.fillRect(QRect(scaled_bbox.bottomLeft(), scaled_bbox.bottomRight()+QPoint(0,-10)).normalized(), QBrush(Qt::white));
+
+        painter.setFont(QFont("Helvetica", 10));
+        painter.drawText(scaled_bbox.bottomLeft(), bbox.classname);
+
+    }
+    painter.drawRect(scaled_bbox);
+
+    if(mode == MODE_SELECT){
+        pen.setWidth(5);
+        painter.setPen(pen);
+        painter.drawPoint(scaled_bbox.topLeft());
+        painter.drawPoint(scaled_bbox.bottomRight());
+        painter.drawPoint(scaled_bbox.center());
+    }
+
+    painter.end();
+
+}
+
+
 void ImageLabel::mousePressEvent(QMouseEvent *ev){
 
     if(base_pixmap.isNull()) return;
 
-    QPoint image_location = ev->pos();
+    QPoint image_location = getScaledImageLocation(ev->pos());
+
+    if (bbox_state == WAIT_START)
+        current_mode = checkMode(image_location);
 
     if(current_mode == MODE_SELECT && ev->button() == Qt::LeftButton){
 
-        drawLabel(getScaledImageLocation(image_location));
+        //drawLabel(image_location);
+        if (selected && bbox_state == WAIT_START) {
 
+            QPoint topLeft = editbbox->rect.topLeft();
+            QPoint bottomRight = editbbox->rect.bottomRight();
+            QPoint center = editbbox->rect.center();
+            QRect topLeftProxmity(topLeft.rx() - 10, topLeft.ry() - 10, 20, 20);
+            QRect bottomRightProxmity(bottomRight.rx() - 10, bottomRight.ry() - 10, 20, 20);
+            QRect centerProxmity(center.rx() - 10, center.ry() - 10, 20, 20);
+
+            if(topLeftProxmity.contains(image_location)) {
+
+                region =  TOP_LEFT;
+                std::cout<<"near top left"<<std::endl;
+
+            }
+            else if(bottomRightProxmity.contains(image_location)) {
+
+                region = BOTTOM_RIGHT;
+                std::cout<<"near bottom right"<<std::endl;
+
+            }
+            else if(centerProxmity.contains(image_location)){
+
+                region = CENTER;
+                std::cout<<"near center"<<std::endl;
+
+            }
+        }else if(selected && bbox_state == DRAWING_BBOX){
+
+            std::cout<<"finished editing"<<std::endl;
+            bbox_state = WAIT_START;
+            selected = false;
+            region = NONE;
+            updateLabel(*editbbox);
+            drawLabel();
+
+        }else {
+            drawEditLabel(*editbbox);
+            selected = true;
+        }
+
+    }else if(current_mode == MODE_SELECT && ev->button() == Qt::RightButton)
+    {
+        bool ok;
+        QString current_classname = QInputDialog::getText(0, "Create new ID", "New ID: ",
+                                                 QLineEdit::Normal, "", &ok);
+
+        if(current_classname == ""){
+
+            qDebug() << "No class selected!";
+
+        }else{
+            editbbox->classname = current_classname;
+            updateLabel(*editbbox);
+
+        }
     }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton){
+        selected = false;
         if(bbox_state == WAIT_START){
 
             bbox_origin = image_location;
 
-            rubberBand->setGeometry(QRect(bbox_origin, QSize()));
-            rubberBand->show();
-
             bbox_state = DRAWING_BBOX;
+
         }else if(bbox_state == DRAWING_BBOX){
 
             bbox_final = image_location;
+            //create ID dialog
+            bool ok;
+            QString current_classname = QInputDialog::getText(0, "Create new ID", "New ID: ",
+                                                 QLineEdit::Normal, "", &ok);
 
-            QRect bbox(bbox_origin, bbox_final);
+            QRect new_box = QRect(bbox_origin, bbox_final).normalized();
+            //new_box = clip(new_box);
 
-            bbox = clip(bbox.normalized());
-            bbox_origin = bbox.topLeft();
-            bbox_final = bbox.bottomRight();
+            if(new_box.width() > 0 && new_box.height() > 0){
 
-            rubberBand->setGeometry(bbox);
-
-            bbox_state = WAIT_START;
+                if(ok){
+                    if(current_classname == ""){
+                        QMessageBox msgBox;
+                        msgBox.setText("Class not chosen");
+                        msgBox.exec();
+                    }else{
+                        addLabel(new_box, current_classname);
+                    }
+                }
         }
+    drawLabel();
+    bbox_state = WAIT_START;
+    }
     }
 }
 
@@ -191,15 +324,58 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
 
     if(base_pixmap.isNull()) return;
 
-    if(bbox_state == DRAWING_BBOX && current_mode == MODE_DRAW){
-        QRect bbox = QRect(bbox_origin, ev->pos()).normalized();
-        rubberBand->setGeometry(bbox);
+    if(current_mode == MODE_DRAW && bbox_state == DRAWING_BBOX ){
+        scaledPixmap();
+        QPoint image_location = getScaledImageLocation(ev->pos());
+        createbbox.rect.setTopLeft(bbox_origin);
+        createbbox.rect.setBottomRight(image_location);
+        drawBoundingBox(createbbox, Qt::blue, MODE_DRAW);
+        QLabel::setPixmap(scaled_pixmap);
+        bbox_state = DRAWING_BBOX;
+        std::cout<<"box creation"<<std::endl;
+    }else if(current_mode == MODE_SELECT && selected){
+        if(region == TOP_LEFT){
+
+            scaledPixmap();
+            QPoint image_location = getScaledImageLocation(ev->pos());
+            std::cout<<original_box.rect.x()<<std::endl;
+            editbbox->rect.setTopLeft(image_location);
+            editbbox->rect.setBottomRight(editbbox->rect.bottomRight());
+            std::cout<<editbbox->rect.x()<<std::endl;
+            drawBoundingBox(*editbbox, Qt::green, MODE_SELECT);
+            QLabel::setPixmap(scaled_pixmap);
+            bbox_state = DRAWING_BBOX;
+            std::cout<<"resizing top left"<<std::endl;
+
+        }else if(region == BOTTOM_RIGHT) {
+
+            scaledPixmap();
+            QPoint image_location = getScaledImageLocation(ev->pos());
+            editbbox->rect.setTopLeft(editbbox->rect.topLeft());
+            editbbox->rect.setBottomRight(image_location);
+            drawBoundingBox(*editbbox, Qt::green, MODE_SELECT);
+            QLabel::setPixmap(scaled_pixmap);
+            bbox_state = DRAWING_BBOX;
+            std::cout<<"resizing bottom right"<<std::endl;
+
+        }else if(region == CENTER){
+
+            scaledPixmap();
+            QPoint image_location = getScaledImageLocation(ev->pos());
+            editbbox->rect.moveCenter(image_location);
+            drawBoundingBox(*editbbox, Qt::green, MODE_SELECT);
+            QLabel::setPixmap(scaled_pixmap);
+            bbox_state = DRAWING_BBOX;
+            std::cout<<"moving center"<<std::endl;
+
+        }
+
     }
 }
 
 void ImageLabel::drawBoundingBox(BoundingBox bbox){
-    auto colour_list = QColor::colorNames();
-    QColor colour = QColor( colour_list.at(bbox.classid % colour_list.size()) );
+    srand(static_cast<unsigned int>(bbox.classid));
+    QColor colour(rand()%255, rand()%255, rand()%255);
     drawBoundingBox(bbox, colour);
 }
 
@@ -240,17 +416,9 @@ void ImageLabel::setBoundingBoxes(QList<BoundingBox> input_bboxes){
     drawLabel();
 }
 
-void ImageLabel::setClassname(QString classname)
+void ImageLabel::updateLabel(BoundingBox box)
 {
-    current_classname = classname;
-
-    if(selected_bbox.classname != classname){
-        auto new_bbox = selected_bbox;
-        new_bbox.classname = classname;
-
-        emit updateLabel(selected_bbox, new_bbox);
-    }
-
+    emit updateLabel(original_box, box);
 }
 
 void ImageLabel::setScaledContents(bool should_scale){
@@ -266,7 +434,7 @@ bool ImageLabel::scaleContents(void){
     return shouldScaleContents;
 }
 
-void ImageLabel::drawLabel(QPoint location){
+void ImageLabel::drawLabel(){
 
     scaledPixmap();
 
@@ -275,16 +443,8 @@ void ImageLabel::drawLabel(QPoint location){
     }
 
     BoundingBox bbox;
-    selected_bbox = BoundingBox();
-    foreach(bbox, bboxes){
-        if(bbox.rect.contains(location)){
-            drawBoundingBox(bbox, Qt::green);
-            selected_bbox = bbox;
-            emit setCurrentClass(selected_bbox.classname);
-        }else{
+    foreach(bbox, bboxes)
             drawBoundingBox(bbox);
-        }
-    }
 
     QLabel::setPixmap(scaled_pixmap);
 }
@@ -300,35 +460,21 @@ void ImageLabel::addLabel(QRect rect, QString classname){
     drawLabel();
 }
 
+void ImageLabel::addLabel(BoundingBox box){
+    emit newLabel(box);
+
+    drawLabel();
+}
+
 void ImageLabel::keyPressEvent(QKeyEvent *event)
 {
 
-    if(event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete){
-        emit removeLabel(selected_bbox);
+    if(selected && (event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)){
+        selected = false;
+        emit removeLabel(*editbbox);
     }else if(event->key() == Qt::Key_Escape){
             rubberBand->setGeometry(QRect(bbox_origin, QSize()));
             bbox_state = WAIT_START;
-    }else if(event->key() == Qt::Key_Space && bbox_state == WAIT_START){
-        if(rubberBand->width() > 0 && rubberBand->height() > 0){
-
-            if(current_classname == ""){
-                qDebug() << "No class selected!";
-            }else{
-
-                QRect bbox_rect;
-
-                bbox_rect = QRect(bbox_origin, bbox_final);
-                bbox_rect.setTopLeft(getScaledImageLocation(bbox_rect.topLeft()));
-                bbox_rect.setBottomRight(getScaledImageLocation(bbox_rect.bottomRight()));
-
-                addLabel(bbox_rect, current_classname);
-
-                rubberBand->setGeometry(QRect(bbox_origin, QSize()));
-            }
-    }else if(event->key() == 'o'){
-        emit setOccluded(selected_bbox);
-        drawLabel();
-    }
     }else{
         event->ignore();
     }

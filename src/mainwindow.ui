@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>931</width>
-    <height>671</height>
+    <width>892</width>
+    <height>756</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -406,8 +406,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>931</width>
-     <height>20</height>
+     <width>892</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -437,19 +437,9 @@
     <addaction name="actionJump_forward"/>
     <addaction name="actionJump_backward"/>
    </widget>
-   <widget class="QMenu" name="menuDetection">
-    <property name="title">
-     <string>Detection</string>
-    </property>
-    <addaction name="actionSetup_detector"/>
-    <addaction name="actionSet_threshold"/>
-    <addaction name="actionSet_NMS_threshold"/>
-    <addaction name="actionDetect_project"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImages"/>
    <addaction name="menuNavigation"/>
-   <addaction name="menuDetection"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="movable">
@@ -466,12 +456,9 @@
    </attribute>
    <addaction name="actionPreviousImage"/>
    <addaction name="actionNextImage"/>
-   <addaction name="actionDraw_Tool"/>
-   <addaction name="actionSelect_Tool"/>
    <addaction name="actionInit_Tracking"/>
    <addaction name="actionPropagate_Tracking"/>
    <addaction name="actionRefine_boxes"/>
-   <addaction name="actionDetect_Objects"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionPreviousImage">
