@@ -120,6 +120,7 @@ private slots:
     void refineBoxes();
 
     void updateImageInfo();
+    void updateLabelInfo(BoundingBox);
     void jumpForward(int n = 10);
     void jumpBackward(int n = 10);
 

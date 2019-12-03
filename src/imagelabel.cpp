@@ -197,7 +197,7 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
 
     if(current_mode == MODE_SELECT && ev->button() == Qt::LeftButton){
 
-        //drawLabel(image_location);
+        emit selectLabel(*editbbox);
         if (selected && bbox_state == WAIT_START) {
 
             QPoint topLeft = editbbox->rect.topLeft();
@@ -257,7 +257,7 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
     }else if(current_mode == MODE_DRAW && ev->button() == Qt::RightButton && bbox_state == DRAWING_BBOX){
             drawLabel();
             bbox_state = WAIT_START;
-    }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton && selected == true){
+    }else if(ev->button() == Qt::LeftButton && selected == true){
         selected = false;
         drawLabel();
     }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton){

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>892</width>
-    <height>756</height>
+    <height>831</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -142,34 +142,17 @@
          </size>
         </property>
         <property name="title">
-         <string>Labelling</string>
+         <string>Label information</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="4" column="2">
-          <widget class="QPushButton" name="nextInstanceButton">
+         <item row="8" column="2">
+          <widget class="QPushButton" name="removeLabelsForwardButton">
            <property name="text">
-            <string>Next instance</string>
+            <string>Remove next labels</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="0" colspan="3">
-          <widget class="QLabel" name="label_7">
-           <property name="text">
-            <string>Current label class</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QPushButton" name="removeClassButton">
-           <property name="text">
-            <string>Remove class</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" colspan="2">
-          <widget class="QComboBox" name="classComboBox"/>
-         </item>
-         <item row="6" column="0">
+         <item row="7" column="0">
           <widget class="QLineEdit" name="newClassText">
            <property name="text">
             <string/>
@@ -179,24 +162,69 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="2">
+         <item row="0" column="2">
+          <widget class="QLabel" name="labelClass">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QPushButton" name="nextInstanceButton">
+           <property name="text">
+            <string>Next instance</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QPushButton" name="removeImageLabelsButton">
+           <property name="text">
+            <string>Remove image labels</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" colspan="3">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Current label class</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QPushButton" name="removeClassButton">
+           <property name="text">
+            <string>Remove class</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Class</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QComboBox" name="classComboBox"/>
+         </item>
+         <item row="7" column="2">
           <widget class="QPushButton" name="addClassButton">
            <property name="text">
             <string>Add class</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="2">
-          <widget class="QPushButton" name="removeLabelsForwardButton">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_11">
            <property name="text">
-            <string>Remove next labels</string>
+            <string>ID</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QPushButton" name="removeImageLabelsButton">
+         <item row="1" column="2">
+          <widget class="QLabel" name="labelID">
            <property name="text">
-            <string>Remove image labels</string>
+            <string>-</string>
            </property>
           </widget>
          </item>
@@ -407,7 +435,7 @@
      <x>0</x>
      <y>0</y>
      <width>892</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

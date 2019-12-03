@@ -50,6 +50,7 @@ signals:
     void updateLabel(BoundingBox, BoundingBox);
     void setOccluded(BoundingBox);
     void setCurrentClass(QString);
+    void selectLabel(BoundingBox);
 
 public slots:
     void setPixmap ( QPixmap & );

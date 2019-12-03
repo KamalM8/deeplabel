@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(currentImage, SIGNAL(newLabel(BoundingBox)), this, SLOT(addLabel(BoundingBox)));
     connect(currentImage, SIGNAL(removeLabel(BoundingBox)), this, SLOT(removeLabel(BoundingBox)));
     connect(currentImage, SIGNAL(updateLabel(BoundingBox, BoundingBox)), this, SLOT(updateLabel(BoundingBox, BoundingBox)));
+    connect(currentImage, SIGNAL(selectLabel(BoundingBox)), this, SLOT(updateLabelInfo(BoundingBox)));
     connect(currentImage, SIGNAL(setCurrentClass(QString)), this, SLOT(setCurrentClass(QString)));
 
     connect(ui->actionDraw_Tool, SIGNAL(triggered(bool)), currentImage, SLOT(setDrawMode()));
@@ -165,6 +166,9 @@ void MainWindow::mergeProject(QString filename){
     updateImageList();
     updateClassList();
     updateDisplay();
+}
+void MainWindow::updateLabelInfo(BoundingBox bbox){
+    ui->labelClass->setText(bbox.classname);
 }
 
 void MainWindow::setCurrentClass(QString name){

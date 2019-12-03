@@ -84,6 +84,7 @@ SOURCES += \
     src/baseexporter.cpp \
     src/cocoexporter.cpp \
     src/imagedisplay.cpp \
+    src/inputlabel.cpp \
     src/pascalvocexporter.cpp \
     detection/detectoropencv.cpp \
     detection/detectorsetupdialog.cpp
@@ -100,11 +101,13 @@ HEADERS += \
     src/baseexporter.h \
     src/cocoexporter.h \
     src/imagedisplay.h \
+    src/inputlabel.h \
     src/pascalvocexporter.h \
     detection/detectoropencv.h \
     detection/detectorsetupdialog.h
 
 FORMS += \
+    src/inputlabel.ui \
         src/mainwindow.ui \
     src/exportdialog.ui \
     src/imagedisplay.ui \
