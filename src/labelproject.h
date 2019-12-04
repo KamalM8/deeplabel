@@ -32,6 +32,7 @@ public:
     bool addClass(QString className);
     bool getClassList(QList<QString> &classes);
     bool removeClass(QString className);
+    bool removeClassLabels(QString className);
     bool classInDB(QString classname);
     bool addAsset(QString fileName);
     void addVideo(QString fileName, QString outputFolder);

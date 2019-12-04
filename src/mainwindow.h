@@ -24,6 +24,8 @@
 
 #include <detection/detectoropencv.h>
 #include <detection/detectorsetupdialog.h>
+#include <src/configureclassdialog.h>
+#include <src/configattributedialog.h>
 
 #include <algorithm>
 #include <exportdialog.h>
@@ -53,6 +55,8 @@ private:
     QScrollArea *imageScrollArea;
     ImageDisplay *display;
     DetectorOpenCV detector;
+    ConfigAttributeDialog *attrDialog = new ConfigAttributeDialog;
+    ConfigureClassDialog *classDialog = new ConfigureClassDialog;
 
     // Enable tracking boxes in previous frames
     bool track_previous = false;
@@ -82,9 +86,10 @@ private slots:
     void mergeProject(QString filename = "");
     void newProject(void);
 
-    void addClass(void);
+    void addClass(QString);
     void setCurrentClass(QString);
     void removeClass(void);
+    void removeClass(QString);
 
     void addVideo(void);
     void addImages(void);
@@ -93,6 +98,9 @@ private slots:
     void nextImage(void);
     void previousImage(void);
     void removeImage(void);
+
+    void addRemoveClass();
+    void addRemoveAttributes();
 
     void addLabel(BoundingBox bbox);
     void removeLabel(BoundingBox bbox);
@@ -135,6 +143,7 @@ private slots:
     void updateCurrentIndex(int index);
 signals:
     void selectedClass(QString);
+    void updateClassList(QList<QString>);
 
 };
 

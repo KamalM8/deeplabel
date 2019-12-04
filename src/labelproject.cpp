@@ -100,12 +100,19 @@ bool LabelProject::createDatabase(QString fileName)
          * and label bounding boxes.
          */
 
+        //res = query.exec("CREATE table images (image_id INTEGER PRIMARY KEY ASC, "
+                   //"path varchar(256))");
+        //res &= query.exec("CREATE table classes (class_id INTEGER PRIMARY KEY ASC, "
+                   //"name varchar(32))");
+        //res &= query.exec("CREATE table labels (label_id INTEGER PRIMARY KEY ASC, "
+                   //"image_id int, class_id int, x int, y int, width int, height int, automatic int)");
         res = query.exec("CREATE table images (image_id INTEGER PRIMARY KEY ASC, "
                    "path varchar(256))");
-        res &= query.exec("CREATE table classes (class_id INTEGER PRIMARY KEY ASC, "
-                   "name varchar(32))");
-        res &= query.exec("CREATE table labels (label_id INTEGER PRIMARY KEY ASC, "
-                   "image_id int, class_id int, x int, y int, width int, height int, automatic int)");
+        res &= query.exec("CREATE TABLE classes (class_id INTEGER PRIMARY KEY ASC, class_name)");
+        res &= query.exec("CREATE TABLE meta (class_id INTEGER, attributes TEXT)");
+        res &= query.exec("CREATE table ids (id INTEGER, key TEXT, value TEXT)");
+        res &= query.exec("CREATE table labels (box_id INTEGER, image_id INTEGER, class_id INTEGER, id INTEGER"
+                          "x INTEGER, y INTEGER, w INTEGER, h INTEGER)");
 
         if(!res){
             qDebug() << "Error: " << query.lastError();
@@ -190,7 +197,7 @@ bool LabelProject::getClassList(QList<QString> &classes)
 
     {
         QSqlQuery query(db);
-        res = query.exec("SELECT name FROM classes");
+        res = query.exec("SELECT class_name FROM classes");
 
         if(!res){
             qDebug() << "Error: " << query.lastError();
@@ -216,10 +223,10 @@ bool LabelProject::classInDB(QString className){
 
     {
         QSqlQuery query(db);
-        query.prepare("SELECT * FROM classes WHERe (name)"
-                      "= (:name)");
+        query.prepare("SELECT * FROM classes WHERE (class_name)"
+                      "= (:class_name)");
 
-        query.bindValue(":name", className);
+        query.bindValue(":class_name", className);
         res = query.exec();
 
         if(!res){
@@ -367,7 +374,7 @@ int LabelProject::getClassId(QString className){
     int id = -1;
     {
         QSqlQuery query(db);
-        query.prepare("SELECT class_id FROM classes WHERE name = ?");
+        query.prepare("SELECT class_id FROM classes WHERE class_name = ?");
         query.bindValue(0, className);
         bool res = query.exec();
 
@@ -526,8 +533,28 @@ bool LabelProject::setOccluded(QString fileName, BoundingBox bbox, int occluded)
 
     return res;
 }
+bool LabelProject::removeClass(QString className)
+{
+    int class_id = getClassId(className);
 
-bool LabelProject::removeClass(QString className){
+    bool res = false;
+    if (class_id > 0)
+    {
+
+            QSqlQuery query(db);
+            query.prepare("DELETE FROM classes WHERE (class_id = :class_id)");
+            query.bindValue(":class_id", class_id);
+
+            res = query.exec();
+
+            if(!res){
+                qDebug() << "Error: " << query.lastError();
+            }
+    }
+    return res;
+}
+
+bool LabelProject::removeClassLabels(QString className){
     /*!
      * Remove a class given a class name (\a className). Also removes all labels with that class. Returns false
      * if the query failed.
@@ -753,11 +780,10 @@ bool LabelProject::addClass(QString className)
 
     {
         QSqlQuery query(db);
-        query.prepare("INSERT INTO classes (name)"
-                      "VALUES (:name)");
-        query.bindValue(":name", className);
+        query.prepare("INSERT INTO classes (class_name)"
+                      "VALUES (:class_name)");
+        query.bindValue(":class_name", className);
         res = query.exec();
-
 
         if(!res){
             qDebug() << "Error: " << query.lastError();

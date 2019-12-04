@@ -83,8 +83,9 @@ SOURCES += \
         multitracker.cpp \
     src/baseexporter.cpp \
     src/cocoexporter.cpp \
+    src/configattributedialog.cpp \
+    src/configureclassdialog.cpp \
     src/imagedisplay.cpp \
-    src/inputlabel.cpp \
     src/pascalvocexporter.cpp \
     detection/detectoropencv.cpp \
     detection/detectorsetupdialog.cpp
@@ -100,14 +101,16 @@ HEADERS += \
         multitracker.h \
     src/baseexporter.h \
     src/cocoexporter.h \
+    src/configattributedialog.h \
+    src/configureclassdialog.h \
     src/imagedisplay.h \
-    src/inputlabel.h \
     src/pascalvocexporter.h \
     detection/detectoropencv.h \
     detection/detectorsetupdialog.h
 
 FORMS += \
-    src/inputlabel.ui \
+    src/configattributedialog.ui \
+    src/configureclassdialog.ui \
         src/mainwindow.ui \
     src/exportdialog.ui \
     src/imagedisplay.ui \

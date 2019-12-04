@@ -465,9 +465,23 @@
     <addaction name="actionJump_forward"/>
     <addaction name="actionJump_backward"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <widget class="QMenu" name="menuConfigure_Classes">
+     <property name="title">
+      <string>Configure Classes</string>
+     </property>
+     <addaction name="actionAdd_Remove_Class"/>
+     <addaction name="actionAdd_Remove_Attributes"/>
+    </widget>
+    <addaction name="menuConfigure_Classes"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImages"/>
    <addaction name="menuNavigation"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="movable">
@@ -690,6 +704,16 @@
   <action name="actionMerge_Project">
    <property name="text">
     <string>Merge Project</string>
+   </property>
+  </action>
+  <action name="actionAdd_Remove_Class">
+   <property name="text">
+    <string>Add/Remove Class</string>
+   </property>
+  </action>
+  <action name="actionAdd_Remove_Attributes">
+   <property name="text">
+    <string>Add/Remove Attributes</string>
    </property>
   </action>
  </widget>

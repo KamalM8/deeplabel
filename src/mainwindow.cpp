@@ -20,9 +20,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionPreviousImage, SIGNAL(triggered(bool)), this, SLOT(previousImage()));
     connect(ui->actionJump_forward, SIGNAL(triggered(bool)), this, SLOT(jumpForward()));
     connect(ui->actionJump_backward, SIGNAL(triggered(bool)), this, SLOT(jumpBackward()));
+    connect(ui->actionAdd_Remove_Class, SIGNAL(triggered(bool)), this, SLOT(addRemoveClass()));
+    connect(ui->actionAdd_Remove_Attributes, SIGNAL(triggered(bool)), this, SLOT(addRemoveAttributes()));
 
-    connect(ui->addClassButton, SIGNAL(clicked(bool)), this, SLOT(addClass()));
-    connect(ui->newClassText, SIGNAL(editingFinished()), this, SLOT(addClass()));
+    connect(classDialog, SIGNAL(addClass(QString)), this, SLOT(addClass(QString)));
+    connect(this, SIGNAL(updateClassList(QList<QString>)), classDialog, SLOT(getClassList(QList<QString>)));
+    connect(classDialog, SIGNAL(deleteClass(QString)), this, SLOT(removeClass(QString)));
+    connect(this, SIGNAL(updateClassList(QList<QString>)), attrDialog, SLOT(getClassList(QList<QString>)));
 
     connect(ui->actionInit_Tracking, SIGNAL(triggered(bool)), this, SLOT(initTrackers()));
     connect(ui->actionPropagate_Tracking, SIGNAL(triggered(bool)), this, SLOT(updateTrackers()));
@@ -48,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->classComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(setCurrentClass(QString)));
     connect(display, SIGNAL(image_loaded()), this, SLOT(updateImageInfo()));
 
-    connect(ui->removeClassButton, SIGNAL(clicked(bool)), this, SLOT(removeClass()));
+    //connect(ui->removeClassButton, SIGNAL(clicked(bool)), this, SLOT(removeClass()));
     connect(ui->removeImageButton, SIGNAL(clicked(bool)), this, SLOT(removeImage()));
     connect(ui->removeImageLabelsButton, SIGNAL(clicked(bool)), this, SLOT(removeImageLabels()));
     connect(ui->removeLabelsForwardButton, SIGNAL(clicked(bool)), this, SLOT(removeImageLabelsForward()));
@@ -179,6 +183,14 @@ void MainWindow::setCurrentClass(QString name){
 
     current_class = name;
     emit selectedClass(current_class);
+}
+
+void MainWindow::addRemoveClass(){
+    classDialog->exec();
+}
+
+void MainWindow::addRemoveAttributes(){
+    attrDialog->exec();
 }
 
 void MainWindow::setupDetector(void){
@@ -455,32 +467,31 @@ void MainWindow::updateImageList(){
 void MainWindow::updateClassList(){
     project->getClassList(classes);
 
-    ui->classComboBox->clear();
+    //ui->classComboBox->clear();
 
-    QString classname;
-    foreach(classname, classes){
-        if(classname != "")
-            ui->classComboBox->addItem(classname);
-    }
+    //QString classname;
+    //foreach(classname, classes){
+        //if(classname != "")
+            //ui->classComboBox->addItem(classname);
+    //}
 
-    if(classes.size() > 0){
-        ui->classComboBox->setEnabled(true);
-        ui->removeClassButton->setEnabled(true);
-        ui->classComboBox->setCurrentIndex(0);
-    }else{
-        ui->classComboBox->setDisabled(true);
-        ui->removeClassButton->setDisabled(true);
-    }
+    //if(classes.size() > 0){
+        //ui->classComboBox->setEnabled(true);
+        //ui->removeClassButton->setEnabled(true);
+        //ui->classComboBox->setCurrentIndex(0);
+    //}else{
+        //ui->classComboBox->setDisabled(true);
+        //ui->removeClassButton->setDisabled(true);
+    //}
+    emit updateClassList(classes);
 }
 
-void MainWindow::addClass(){
-    QString new_class = ui->newClassText->text();
+void MainWindow::addClass(QString new_class){
 
     if(new_class.simplified() != "" && !classes.contains(new_class)){
         project->addClass(new_class.simplified());
-        ui->newClassText->clear();
         updateClassList();
-        setCurrentClass(new_class.simplified());
+        //setCurrentClass(new_class.simplified());
     }
 }
 
@@ -550,6 +561,10 @@ void MainWindow::removeImage(){
         updateImageList();
         updateDisplay();
     }
+}
+void MainWindow::removeClass(QString class_name){
+    project->removeClass(class_name);
+    updateClassList();
 }
 
 void MainWindow::removeClass(){
