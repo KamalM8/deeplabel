@@ -23,3 +23,23 @@ ConfigAttributeDialog::~ConfigAttributeDialog()
 {
     delete ui;
 }
+
+void ConfigAttributeDialog::on_addAttributeButton_clicked()
+{
+
+}
+
+void ConfigAttributeDialog::on_deleteAttributeButton_clicked()
+{
+
+}
+
+void ConfigAttributeDialog::on_addValueButton_clicked()
+{
+
+}
+
+void ConfigAttributeDialog::on_deleteValueButton_clicked()
+{
+
+}
