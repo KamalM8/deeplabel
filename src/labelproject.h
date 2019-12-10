@@ -17,12 +17,16 @@
 
 #include <QDebug>
 #include <QMessageBox>
+#include <algorithm>
+#include <unordered_set>
 
 #include <boundingbox.h>
 #include <opencv2/opencv.hpp>
+#include <MetaObject.h>
 
 class LabelProject : public QObject
 {
+public:
     Q_OBJECT
 public:
     explicit LabelProject(QObject *parent = nullptr);
@@ -30,7 +34,7 @@ public:
     bool loadDatabase(QString fileName);
     bool createDatabase(QString fileName);
     bool addClass(QString className);
-    bool getClassList(QList<QString> &classes);
+    //bool getClassList(QList<QString> &classes);
     bool removeClass(QString className);
     bool removeClassLabels(QString className);
     bool classInDB(QString classname);
@@ -55,7 +59,10 @@ public:
     //QString getClassName(int classId);
     int getImageId(QString fileName);
     int getClassId(QString className);
+    QString getClassName(int classID);
     void assignThread(QThread* thread);
+
+    bool loadMeta();
 
 signals:
     void finished();
@@ -63,11 +70,15 @@ signals:
     void video_split_finished(QString);
     void load_finished();
     void load_progress(int);
+    void updateMeta(std::map<int, MetaObject> meta);
 
 public slots:
     int addImageFolder(QString path);
     void cancelLoad();
     void addFolderRecursive(QString path_filter);
+    bool addValue(QString newValue, QString currentAttribute, QString currentClass);
+    bool deleteValue(QString value, QString currentAttribute, QString currentClass);
+    bool getClassList(QList<QString> &classes);
 
 private:
     QSqlDatabase db;
@@ -75,7 +86,7 @@ private:
     bool checkDatabase();
     bool should_cancel;
     QString connection_name;
-
+    std::map<int, MetaObject> meta;
 };
 
 #endif // LABELPROJECT_H

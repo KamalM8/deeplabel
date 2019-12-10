@@ -99,6 +99,7 @@ HEADERS += \
         darknetexporter.h \
         exportdialog.h \
         multitracker.h \
+    src/MetaObject.h \
     src/baseexporter.h \
     src/cocoexporter.h \
     src/configattributedialog.h \

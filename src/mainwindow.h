@@ -48,7 +48,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    LabelProject *project;
+    LabelProject *project = new LabelProject;
     ImageLabel *currentImage;
     ExportDialog *export_dialog;
     MultiTracker *multitracker;

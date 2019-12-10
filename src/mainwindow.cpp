@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAdd_Remove_Class, SIGNAL(triggered(bool)), this, SLOT(addRemoveClass()));
     connect(ui->actionAdd_Remove_Attributes, SIGNAL(triggered(bool)), this, SLOT(addRemoveAttributes()));
 
+    connect(classDialog, SIGNAL(loadClasses()), project, SLOT(getClassList(QList<QString>)));
     connect(classDialog, SIGNAL(addClass(QString)), this, SLOT(addClass(QString)));
     connect(this, SIGNAL(updateClassList(QList<QString>)), classDialog, SLOT(getClassList(QList<QString>)));
     connect(classDialog, SIGNAL(deleteClass(QString)), this, SLOT(removeClass(QString)));
@@ -84,8 +85,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->imageProgressBar->setStyleSheet("QProgressBar::chunk {background-color: #3add36; width: 1px;}");
 #endif
 
-    project = new LabelProject;
-
     settings = new QSettings("DeepLabel", "DeepLabel");
 
     multitracker = new MultiTrackerCV();
@@ -111,7 +110,13 @@ MainWindow::MainWindow(QWidget *parent) :
     detector.setNMSThreshold(settings->value("detector_nms_threshold", 0.4).toDouble());
     connect(ui->actionDetect_project, SIGNAL(triggered(bool)), this, SLOT(detectProject()));
     //ui->actionInit_Tracking->setIcon(awesome->icon(fa::objectungroup, options));
-
+    connect(attrDialog, SIGNAL(deleteAttribute(QString, QString)), project,
+            SLOT(deleteAttribute(QString, QString)));
+    connect(attrDialog, SIGNAL(addValue(QString, QString, QString)), project,
+            SLOT(addValue(QString, QString, QString)));
+    connect(attrDialog, SIGNAL(deleteValue(QString, QString, QString)), project,
+            SLOT(deleteValue(QString, QString, QString)));
+    connect(project, SIGNAL(updateMeta(std::map<int, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<int, MetaObject>)));
     resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
 
 }
@@ -190,6 +195,7 @@ void MainWindow::addRemoveClass(){
 }
 
 void MainWindow::addRemoveAttributes(){
+    attrDialog->load();
     attrDialog->exec();
 }
 

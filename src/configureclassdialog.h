@@ -18,6 +18,7 @@ public:
 signals:
     void addClass(QString);
     void deleteClass(QString);
+    void loadClasses();
 
 private slots:
     void on_addClass_clicked();

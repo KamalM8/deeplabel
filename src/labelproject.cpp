@@ -55,31 +55,93 @@ bool LabelProject::checkDatabase(){
      * true if the database is valid, false if not.
      */
 
+    QSqlRecord class_record = db.record("classes");
+    QSqlRecord id_record = db.record("ids");
     QSqlRecord image_record = db.record("images");
     QSqlRecord label_record = db.record("labels");
-    QSqlRecord class_record = db.record("classes");
+    QSqlRecord meta_record = db.record("meta");
 
+    if(class_record.isEmpty()) return false;
+    if(id_record.isEmpty()) return false;
     if(image_record.isEmpty()) return false;
     if(label_record.isEmpty()) return false;
-    if(class_record.isEmpty()) return false;
+    if(meta_record.isEmpty()) return false;
+
+    if(!class_record.contains("class_id")) return false;
+    if(!class_record.contains("class_name")) return false;
+
+    if(!id_record.contains("id")) return false;
+    if(!id_record.contains("key")) return false;
+    if(!id_record.contains("value")) return false;
 
     if(!image_record.contains("image_id")) return false;
     if(!image_record.contains("path")) return false;
 
+    if(!label_record.contains("box_id")) return false;
     if(!label_record.contains("image_id")) return false;
-    if(!label_record.contains("label_id")) return false;
     if(!label_record.contains("class_id")) return false;
+    if(!label_record.contains("id")) return false;
     if(!label_record.contains("x")) return false;
     if(!label_record.contains("y")) return false;
-    if(!label_record.contains("width")) return false;
-    if(!label_record.contains("height")) return false;
+    if(!label_record.contains("w")) return false;
+    if(!label_record.contains("h")) return false;
 
-    if(!class_record.contains("class_id")) return false;
-    if(!class_record.contains("name")) return false;
+    if(!meta_record.contains("class_id")) return false;
+    if(!meta_record.contains("attribute")) return false;
+    if(!meta_record.contains("value")) return false;
 
     qDebug() << "Database structure looks good";
 
+    if(loadMeta()){
+        qDebug() << "Data loaded successfully";
+    }else{
+        qDebug() << "Data loading failed";
+    }
+
+
     return true;
+}
+bool LabelProject::loadMeta(){
+    bool res;
+    QSqlQuery query(db);
+    QSqlQuery query_value(db);
+    std::vector<QString> value_buffer;
+    // TODO (kamal): clean this up
+
+    res = query.exec("SELECT DISTINCT class_id FROM meta");
+    while (query.next()) {
+        int classID = query.value(0).toInt();
+        QString className = getClassName(classID);
+        meta.insert(std::make_pair(classID, MetaObject(className)));
+    }
+    for(auto &metaObject: meta){
+        res &= query.prepare("SELECT DISTINCT attribute FROM meta WHERE class_id = ?");
+        query.bindValue(0, getClassId(metaObject.second.className));
+        res &= query.exec();
+        if(!res){
+            qDebug() << "Error: " << query.lastError();
+        }else{
+            while (query.next()) {
+                QString attribute_name = query.value(0).toString();
+                res = query_value.prepare("SELECT DISTINCT value FROM meta WHERE attribute = ?");
+                query_value.bindValue(0, attribute_name);
+                res &= query_value.exec();
+                if(!res){
+                    qDebug() << "Error: " << query_value.lastError();
+                }else{
+                    while(query_value.next()){
+                        value_buffer.push_back(query_value.value(0).toString());
+                    }
+                    metaObject.second.attributes.insert(std::make_pair(attribute_name, value_buffer));
+                    value_buffer.clear();
+                }
+            }
+        }
+    }
+    if(res){
+        emit updateMeta(meta);
+    }
+    return res;
 }
 
 bool LabelProject::createDatabase(QString fileName)
@@ -109,9 +171,9 @@ bool LabelProject::createDatabase(QString fileName)
         res = query.exec("CREATE table images (image_id INTEGER PRIMARY KEY ASC, "
                    "path varchar(256))");
         res &= query.exec("CREATE TABLE classes (class_id INTEGER PRIMARY KEY ASC, class_name)");
-        res &= query.exec("CREATE TABLE meta (class_id INTEGER, attributes TEXT)");
+        res &= query.exec("CREATE TABLE meta (class_id INTEGER, attribute TEXT, value TEXT)");
         res &= query.exec("CREATE table ids (id INTEGER, key TEXT, value TEXT)");
-        res &= query.exec("CREATE table labels (box_id INTEGER, image_id INTEGER, class_id INTEGER, id INTEGER"
+        res &= query.exec("CREATE table labels (box_id INTEGER, image_id INTEGER, class_id INTEGER, id INTEGER,"
                           "x INTEGER, y INTEGER, w INTEGER, h INTEGER)");
 
         if(!res){
@@ -390,6 +452,30 @@ int LabelProject::getClassId(QString className){
     return id;
 }
 
+QString LabelProject::getClassName(int classID){
+    /*!
+     * Get the class name for a class id, (\a className), returns "" if not found
+     */
+    QString className = "";
+    {
+        QSqlQuery query(db);
+        query.prepare("SELECT class_name FROM classes WHERE class_id = ?");
+        query.bindValue(0, classID);
+        bool res = query.exec();
+
+        if(!res){
+            qDebug() << "Error: " << query.lastError();
+        }else{
+            if(query.next()){
+                className= query.value(0).toString();
+            }
+        }
+    }
+
+    return className;
+}
+
+
 bool LabelProject::getLabels(QString fileName, QList<BoundingBox> &bboxes){
     bboxes.clear();
     int image_id = getImageId(fileName);
@@ -540,7 +626,6 @@ bool LabelProject::removeClass(QString className)
     bool res = false;
     if (class_id > 0)
     {
-
             QSqlQuery query(db);
             query.prepare("DELETE FROM classes WHERE (class_id = :class_id)");
             query.bindValue(":class_id", class_id);
@@ -549,6 +634,9 @@ bool LabelProject::removeClass(QString className)
 
             if(!res){
                 qDebug() << "Error: " << query.lastError();
+            }else{
+                meta.erase(class_id);
+                emit updateMeta(meta);
             }
     }
     return res;
@@ -787,6 +875,9 @@ bool LabelProject::addClass(QString className)
 
         if(!res){
             qDebug() << "Error: " << query.lastError();
+        }else{
+            meta.insert(std::make_pair(getClassId(className), MetaObject(className)));
+            emit updateMeta(meta);
         }
     }
 
@@ -806,4 +897,62 @@ LabelProject::~LabelProject()
     }
 
     emit finished();
+}
+
+bool LabelProject::addValue(QString newValue, QString currentAttribute, QString currentClass)
+{
+    int classID = getClassId(currentClass);
+
+    bool res = false;
+
+    if(classID > 0){
+        {
+            QSqlQuery query(db);
+
+            query.prepare("INSERT INTO meta (class_id, attribute, value)"
+                          "VALUES (:class_id, :attribute, :value)");
+            query.bindValue(":class_id", classID);
+            query.bindValue(":attribute", currentAttribute);
+            query.bindValue(":value", newValue);
+            res = query.exec();
+
+            if(!res){
+                qDebug() << "Error: " << query.lastError();
+            }else{
+                meta[classID].attributes[currentAttribute].push_back(newValue);
+                emit updateMeta(meta);
+            }
+        }
+    }
+
+    return res;
+}
+
+bool LabelProject::deleteValue(QString value, QString currentAttribute, QString currentClass)
+{
+    bool res = false;
+    int classID = getClassId(currentClass);
+    if(classID > 0){
+        {
+            QSqlQuery query(db);
+
+            query.prepare("DELETE FROM meta WHERE (class_id = :class_id AND attribute = :attribute"
+                          " AND value = :value)");
+            query.bindValue(":class_id", classID);
+            query.bindValue(":attribute", currentAttribute);
+            query.bindValue(":value", value);
+
+            res = query.exec();
+
+            if(!res){
+                qDebug() << "Error: " << query.lastError();
+            }else{
+                // TODO (kamal): use unordered set to remove duplicate values and clean
+                std::vector<QString> *temp = &meta[classID].attributes[currentAttribute];
+                temp->erase(std::remove(temp->begin(), temp->end(), value), temp->end());
+                emit updateMeta(meta);
+            }
+        }
+    }
+    return res;
 }

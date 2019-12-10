@@ -39,7 +39,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="addAttributeButton">
    <property name="geometry">
     <rect>
      <x>140</x>
@@ -62,7 +62,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="deleteAttributeButton">
    <property name="geometry">
     <rect>
      <x>250</x>
@@ -114,7 +114,7 @@
     <string>Values</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="deleteValueButton">
    <property name="geometry">
     <rect>
      <x>630</x>
@@ -137,7 +137,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_4">
+  <widget class="QPushButton" name="addValueButton">
    <property name="geometry">
     <rect>
      <x>520</x>
