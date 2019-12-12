@@ -112,7 +112,7 @@ bool LabelProject::loadMeta(){
     while (query.next()) {
         int classID = query.value(0).toInt();
         QString className = getClassName(classID);
-        meta.insert(std::make_pair(classID, MetaObject(className)));
+        meta.insert(std::make_pair(className, MetaObject(className)));
     }
     for(auto &metaObject: meta){
         res &= query.prepare("SELECT DISTINCT attribute FROM meta WHERE class_id = ?");
@@ -635,7 +635,7 @@ bool LabelProject::removeClass(QString className)
             if(!res){
                 qDebug() << "Error: " << query.lastError();
             }else{
-                meta.erase(class_id);
+                meta.erase(className);
                 emit updateMeta(meta);
             }
     }
@@ -876,7 +876,7 @@ bool LabelProject::addClass(QString className)
         if(!res){
             qDebug() << "Error: " << query.lastError();
         }else{
-            meta.insert(std::make_pair(getClassId(className), MetaObject(className)));
+            meta.insert(std::make_pair(className, MetaObject(className)));
             emit updateMeta(meta);
         }
     }
@@ -919,7 +919,7 @@ bool LabelProject::addValue(QString newValue, QString currentAttribute, QString 
             if(!res){
                 qDebug() << "Error: " << query.lastError();
             }else{
-                meta[classID].attributes[currentAttribute].push_back(newValue);
+                meta[currentClass].attributes[currentAttribute].push_back(newValue);
                 emit updateMeta(meta);
             }
         }
@@ -948,7 +948,7 @@ bool LabelProject::deleteValue(QString value, QString currentAttribute, QString 
                 qDebug() << "Error: " << query.lastError();
             }else{
                 // TODO (kamal): use unordered set to remove duplicate values and clean
-                std::vector<QString> *temp = &meta[classID].attributes[currentAttribute];
+                std::vector<QString> *temp = &meta[currentClass].attributes[currentAttribute];
                 temp->erase(std::remove(temp->begin(), temp->end(), value), temp->end());
                 emit updateMeta(meta);
             }

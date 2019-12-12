@@ -116,8 +116,8 @@ MainWindow::MainWindow(QWidget *parent) :
             SLOT(addValue(QString, QString, QString)));
     connect(attrDialog, SIGNAL(deleteValue(QString, QString, QString)), project,
             SLOT(deleteValue(QString, QString, QString)));
-    connect(project, SIGNAL(updateMeta(std::map<int, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<int, MetaObject>)));
-    connect(project, SIGNAL(updateMeta(std::map<int, MetaObject>)), currentImage->inputDialog, SLOT(updateMeta(std::map<int, MetaObject>)));
+    connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
+    connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), currentImage->inputDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
     resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
 
 }

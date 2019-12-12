@@ -18,19 +18,19 @@ class InputDialog : public QDialog
 
 public:
     explicit InputDialog(QWidget *parent = nullptr);
+    std::map<QString, QComboBox*> selection;
     ~InputDialog();
 
 private slots:
-    void updateMeta(std::map<int, MetaObject>);
+    void updateMeta(std::map<QString, MetaObject>);
 
-    void on_classComboBox_currentIndexChanged(int index);
+    void on_classComboBox_currentIndexChanged(QString currentText);
     
 private:
     Ui::InputDialog *ui;
-    std::map<int, MetaObject> meta;
+    std::map<QString, MetaObject> meta;
     QLabel* attributeLabel = new QLabel("attribute");
     QLabel* valueLabel = new QLabel("value");
-
 };
 
 #endif // INPUTDIALOG_H

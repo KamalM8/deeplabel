@@ -15,17 +15,12 @@ ConfigAttributeDialog::ConfigAttributeDialog(QWidget *parent) :
 
 void ConfigAttributeDialog::load(){
     if(!meta.empty()){
-        //ui->classComboBox->clear();
-        //for(auto &object: meta)
-            //if(object.second.className != "")
-                //ui->classComboBox->addItem(object.second.className);
-        //TODO(Kamal): remove ugly database increment
         ui->attrComboBox->clear();
-        for(auto &attribute : meta[ui->classComboBox->currentIndex() + 1].attributes)
+        for(auto &attribute : meta[ui->classComboBox->currentText()].attributes)
             if(attribute.first != "")
                 ui->attrComboBox->addItem(attribute.first);
         ui->valueComboBox->clear();
-        for(auto &value : meta[ui->classComboBox->currentIndex() + 1].attributes[ui->attrComboBox->currentText()])
+        for(auto &value : meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()])
             if(value != "")
                 ui->valueComboBox->addItem(value);
         ui->valueComboBox->setEnabled(true);
@@ -56,7 +51,7 @@ void ConfigAttributeDialog::on_addAttributeButton_clicked()
     bool ok;
     QString newAttribute = QInputDialog::getText(0, "Add new attribute", "New attribute: ",
                      QLineEdit::Normal, "", &ok);
-    MetaObject* classInfo = &meta[ui->classComboBox->currentIndex() + 1];
+    MetaObject* classInfo = &meta[ui->classComboBox->currentText()];
     classInfo->attributes[newAttribute];
     ui->attrComboBox->clear();
 
@@ -79,7 +74,7 @@ void ConfigAttributeDialog::on_deleteAttributeButton_clicked()
 {
     //it values exist, delete all entries of that attribute
     emit deleteAttribute(ui->attrComboBox->currentText(), ui->classComboBox->currentText());
-    MetaObject* classInfo = &meta[ui->classComboBox->currentIndex() + 1];
+    MetaObject* classInfo = &meta[ui->classComboBox->currentText()];
     classInfo->attributes.erase(ui->attrComboBox->currentText());
     ui->attrComboBox->clear();
 
@@ -104,7 +99,7 @@ void ConfigAttributeDialog::on_addValueButton_clicked()
     emit addValue(newValue, ui->attrComboBox->currentText(), ui->classComboBox->currentText());
 
     ui->valueComboBox->clear();
-    for(auto &value : meta[ui->classComboBox->currentIndex() + 1].attributes[ui->attrComboBox->currentText()]){
+    for(auto &value : meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()]){
         if(value != "")
             ui->valueComboBox->addItem(value);
     }
@@ -117,18 +112,18 @@ void ConfigAttributeDialog::on_deleteValueButton_clicked()
     emit deleteValue(ui->valueComboBox->currentText(), ui->attrComboBox->currentText(), ui->classComboBox->currentText());
     ui->valueComboBox->clear();
 
-    for(auto &value : meta[ui->classComboBox->currentIndex() + 1].attributes[ui->attrComboBox->currentText()]){
+    for(auto &value : meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()]){
         if(value != "")
             ui->valueComboBox->addItem(value);
     }
 }
 
-void ConfigAttributeDialog::on_classComboBox_currentIndexChanged(int index)
+void ConfigAttributeDialog::on_classComboBox_currentIndexChanged(QString currentText)
 {
     ui->attrComboBox->clear();
-    if (index >= 0){
+    if (currentText != ""){
 
-        for(auto& attribute: meta[index + 1].attributes){
+        for(auto& attribute: meta[currentText].attributes){
         if(attribute.first != "")
             ui->attrComboBox->addItem(attribute.first);
         }
@@ -141,7 +136,7 @@ void ConfigAttributeDialog::on_attrComboBox_currentIndexChanged(QString attribut
 {
     ui->valueComboBox->clear();
 
-    for(auto &value : meta[ui->classComboBox->currentIndex() + 1].attributes[attribute]){
+    for(auto &value : meta[ui->classComboBox->currentText()].attributes[attribute]){
         if(value != "")
             ui->valueComboBox->addItem(value);
     }
@@ -149,6 +144,6 @@ void ConfigAttributeDialog::on_attrComboBox_currentIndexChanged(QString attribut
     ui->valueComboBox->setCurrentIndex(0);
 }
 
-void ConfigAttributeDialog::updateMeta(std::map<int, MetaObject> new_meta){
+void ConfigAttributeDialog::updateMeta(std::map<QString, MetaObject> new_meta){
     meta = new_meta;
 }

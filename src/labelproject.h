@@ -70,7 +70,7 @@ signals:
     void video_split_finished(QString);
     void load_finished();
     void load_progress(int);
-    void updateMeta(std::map<int, MetaObject> meta);
+    void updateMeta(std::map<QString, MetaObject> meta);
 
 public slots:
     int addImageFolder(QString path);
@@ -86,7 +86,7 @@ private:
     bool checkDatabase();
     bool should_cancel;
     QString connection_name;
-    std::map<int, MetaObject> meta;
+    std::map<QString, MetaObject> meta;
 };
 
 #endif // LABELPROJECT_H

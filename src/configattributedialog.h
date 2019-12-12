@@ -26,7 +26,7 @@ signals:
     void deleteValue(QString value, QString currentAttribute, QString currentClass);
 
 private slots:
-    void updateMeta(std::map<int, MetaObject>);
+    void updateMeta(std::map<QString, MetaObject>);
 
     void getClassList(QList<QString>);
 
@@ -38,14 +38,14 @@ private slots:
 
     void on_deleteValueButton_clicked();
 
-    void on_classComboBox_currentIndexChanged(int index);
+    void on_classComboBox_currentIndexChanged(QString currentText);
 
     void on_attrComboBox_currentIndexChanged(QString attribute);
 
 private:
     Ui::ConfigAttributeDialog *ui;
     QList<QString> classes;
-    std::map<int, MetaObject> meta;
+    std::map<QString, MetaObject> meta;
 };
 
 #endif // CONFIGATTRIBUTEDIALOG_H
