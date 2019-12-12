@@ -117,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(attrDialog, SIGNAL(deleteValue(QString, QString, QString)), project,
             SLOT(deleteValue(QString, QString, QString)));
     connect(project, SIGNAL(updateMeta(std::map<int, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<int, MetaObject>)));
+    connect(project, SIGNAL(updateMeta(std::map<int, MetaObject>)), currentImage->inputDialog, SLOT(updateMeta(std::map<int, MetaObject>)));
     resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
 
 }
@@ -191,6 +192,7 @@ void MainWindow::setCurrentClass(QString name){
 }
 
 void MainWindow::addRemoveClass(){
+    classDialog->load();
     classDialog->exec();
 }
 

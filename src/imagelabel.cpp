@@ -275,6 +275,8 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
             QString current_classname = QInputDialog::getText(0, "Create new ID", "New ID: ",
                                                  QLineEdit::Normal, "", &ok);
 
+            inputDialog->exec();
+
             QRect new_box = QRect(bbox_origin, bbox_final).normalized();
             //new_box = clip(new_box);
 

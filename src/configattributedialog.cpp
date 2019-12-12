@@ -20,9 +20,11 @@ void ConfigAttributeDialog::load(){
             //if(object.second.className != "")
                 //ui->classComboBox->addItem(object.second.className);
         //TODO(Kamal): remove ugly database increment
+        ui->attrComboBox->clear();
         for(auto &attribute : meta[ui->classComboBox->currentIndex() + 1].attributes)
             if(attribute.first != "")
                 ui->attrComboBox->addItem(attribute.first);
+        ui->valueComboBox->clear();
         for(auto &value : meta[ui->classComboBox->currentIndex() + 1].attributes[ui->attrComboBox->currentText()])
             if(value != "")
                 ui->valueComboBox->addItem(value);

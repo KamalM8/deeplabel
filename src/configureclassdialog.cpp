@@ -9,6 +9,15 @@ ConfigureClassDialog::ConfigureClassDialog(QWidget *parent) :
     ui->setupUi(this);
 }
 
+void ConfigureClassDialog::load()
+{
+   ui->comboBox->clear();
+   if (!classes.empty())
+       for(auto &className : classes)
+           if(className != "")
+               ui->comboBox->addItem(className);
+}
+
 ConfigureClassDialog::~ConfigureClassDialog()
 {
     delete ui;

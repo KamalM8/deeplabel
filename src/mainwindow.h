@@ -57,6 +57,7 @@ private:
     DetectorOpenCV detector;
     ConfigAttributeDialog *attrDialog = new ConfigAttributeDialog;
     ConfigureClassDialog *classDialog = new ConfigureClassDialog;
+    //InputDialog* inputDialog = new InputDialog;
 
     // Enable tracking boxes in previous frames
     bool track_previous = false;

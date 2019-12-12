@@ -14,6 +14,7 @@ class ConfigureClassDialog : public QDialog
 public:
     explicit ConfigureClassDialog(QWidget *parent = nullptr);
     ~ConfigureClassDialog();
+    void load();
 
 signals:
     void addClass(QString);
