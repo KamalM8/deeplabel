@@ -12,7 +12,7 @@ typedef struct{
     bool truncated = false;
     int classid = 0;
     int id = 0;
-    std::map<std::string, int> attributes;
+    std::map<QString, QString> attributes;
     double confidence = 0;
 } BoundingBox;
 

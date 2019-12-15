@@ -42,6 +42,20 @@
          <string>Navigation</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
+         <item row="4" column="1" colspan="2">
+          <widget class="QPushButton" name="nextUnlabelledButton">
+           <property name="text">
+            <string>Next Unlabelled</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" colspan="2">
+          <widget class="QPushButton" name="changeImageButton">
+           <property name="text">
+            <string>Jump to image</string>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="imageIndexLabel">
            <property name="text">
@@ -53,33 +67,6 @@
           <widget class="QCheckBox" name="propagateCheckBox">
            <property name="text">
             <string>Track labels</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" colspan="2">
-          <widget class="QPushButton" name="changeImageButton">
-           <property name="text">
-            <string>Jump to image</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QCheckBox" name="refineTrackingCheckbox">
-           <property name="text">
-            <string>Refine after tracking</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QSpinBox" name="imageNumberSpinbox">
-           <property name="maximumSize">
-            <size>
-             <width>300</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="minimum">
-            <number>1</number>
            </property>
           </widget>
          </item>
@@ -114,10 +101,16 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1" colspan="2">
-          <widget class="QPushButton" name="nextUnlabelledButton">
-           <property name="text">
-            <string>Next Unlabelled</string>
+         <item row="2" column="0">
+          <widget class="QSpinBox" name="imageNumberSpinbox">
+           <property name="maximumSize">
+            <size>
+             <width>300</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="minimum">
+            <number>1</number>
            </property>
           </widget>
          </item>
@@ -145,55 +138,38 @@
          <string>Label information</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
-         <item row="8" column="2">
+         <item row="6" column="1">
           <widget class="QPushButton" name="removeLabelsForwardButton">
            <property name="text">
             <string>Remove next labels</string>
            </property>
           </widget>
          </item>
-         <item row="7" column="0">
-          <widget class="QLineEdit" name="newClassText">
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>New class name</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
+         <item row="0" column="1">
           <widget class="QLabel" name="labelClass">
            <property name="text">
             <string>-</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="2">
-          <widget class="QPushButton" name="nextInstanceButton">
-           <property name="text">
-            <string>Next instance</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
+         <item row="6" column="0">
           <widget class="QPushButton" name="removeImageLabelsButton">
            <property name="text">
             <string>Remove image labels</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="0" colspan="3">
-          <widget class="QLabel" name="label_7">
+         <item row="4" column="1">
+          <widget class="QPushButton" name="nextInstanceButton">
            <property name="text">
-            <string>Current label class</string>
+            <string>Next instance</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
-          <widget class="QPushButton" name="removeClassButton">
+         <item row="1" column="1">
+          <widget class="QLabel" name="labelID">
            <property name="text">
-            <string>Remove class</string>
+            <string>-</string>
            </property>
           </widget>
          </item>
@@ -204,16 +180,6 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QComboBox" name="classComboBox"/>
-         </item>
-         <item row="7" column="2">
-          <widget class="QPushButton" name="addClassButton">
-           <property name="text">
-            <string>Add class</string>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_11">
            <property name="text">
@@ -221,12 +187,12 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="labelID">
-           <property name="text">
-            <string>-</string>
+         <item row="2" column="0" rowspan="2" colspan="2">
+          <layout class="QFormLayout" name="formLayout">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMaximumSize</enum>
            </property>
-          </widget>
+          </layout>
          </item>
         </layout>
        </widget>
@@ -252,43 +218,8 @@
          <string>Image Attributes</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Filetype: </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>Filename:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLabel" name="sizeLabel">
-           <property name="text">
-            <string>-</string>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="1">
           <widget class="QLabel" name="filetypeLabel">
-           <property name="text">
-            <string>-</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Dimensions:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="dimensionsLabel">
            <property name="text">
             <string>-</string>
            </property>
@@ -301,24 +232,24 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="filenameLabel">
+         <item row="1" column="1">
+          <widget class="QLabel" name="dimensionsLabel">
            <property name="text">
             <string>-</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Size on disk: </string>
+            <string>Filename:</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Bit Depth</string>
+            <string>Dimensions:</string>
            </property>
           </widget>
          </item>
@@ -329,6 +260,41 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Filetype: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="filenameLabel">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QPushButton" name="removeImageButton">
+           <property name="text">
+            <string>Remove image</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Bit Depth</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="sizeLabel">
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="1">
           <widget class="QLabel" name="instanceCountLabel">
            <property name="text">
@@ -336,76 +302,10 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="0">
-          <widget class="QPushButton" name="removeImageButton">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Remove image</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QComboBox" name="colourMapCombo">
-           <item>
-            <property name="text">
-             <string>Inferno</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Bone</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Viridis</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Plasma</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Magma</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Hot</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Rainbow</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Ocean</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Cividis</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Colour Map</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0" colspan="2">
-          <widget class="QCheckBox" name="colourMapCheckbox">
-           <property name="text">
-            <string>Apply colour map</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
+            <string>Size on disk: </string>
            </property>
           </widget>
          </item>
@@ -416,6 +316,9 @@
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -435,7 +338,7 @@
      <x>0</x>
      <y>0</y>
      <width>892</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -500,7 +403,6 @@
    <addaction name="actionNextImage"/>
    <addaction name="actionInit_Tracking"/>
    <addaction name="actionPropagate_Tracking"/>
-   <addaction name="actionRefine_boxes"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionPreviousImage">
@@ -718,9 +620,6 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <tabstops>
-  <tabstop>classComboBox</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>

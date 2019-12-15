@@ -54,13 +54,14 @@ signals:
     void setOccluded(BoundingBox);
     void setCurrentClass(QString);
     void selectLabel(BoundingBox);
+    void deselectLabel();
 
 public slots:
     void setPixmap ( QPixmap & );
     void setImage(cv::Mat &image){this->image = image;}
     void setBoundingBoxes(QList<BoundingBox> input_bboxes);
     void updateLabel(BoundingBox);
-    void addLabel(QRect rect, QString classname);
+    void addLabel(QRect rect, BoundingBox bbox);
     void addLabel(BoundingBox box);
     void zoom(double factor);
 

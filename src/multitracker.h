@@ -45,7 +45,7 @@ public slots:
     void setTrackerType(OpenCVTrackerType type){ type_ = type; }
 
 private:
-    std::vector<std::pair<cv::Ptr<cv::Tracker>, QString>> trackers;
+    std::vector<std::pair<cv::Ptr<cv::Tracker>, BoundingBox>> trackers;
     cv::Ptr<cv::Tracker> createTrackerByName(OpenCVTrackerType MultiTracker);
     OpenCVTrackerType type_;
 

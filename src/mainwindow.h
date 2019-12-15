@@ -78,6 +78,9 @@ private:
     void updateLabels();
 
     QSettings* settings;
+    QLabel* attributeLabel;
+    QLabel* valueLabel;
+
 
 private slots:
 
@@ -88,7 +91,7 @@ private slots:
     void newProject(void);
 
     void addClass(QString);
-    void setCurrentClass(QString);
+    //void setCurrentClass(QString);
     void removeClass(void);
     void removeClass(QString);
 
@@ -130,6 +133,7 @@ private slots:
 
     void updateImageInfo();
     void updateLabelInfo(BoundingBox);
+    void defaultLabelInfo();
     void jumpForward(int n = 10);
     void jumpBackward(int n = 10);
 

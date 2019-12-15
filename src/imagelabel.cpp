@@ -134,6 +134,7 @@ interactionState ImageLabel::checkMode(QPoint image_location)
     for (int i = 0; i<bboxes.size(); i++) {
         if (bboxes[i].rect.contains(image_location)){
             editbbox = &bboxes[i];
+            auto somevalue1 = editbbox->attributes;
             original_box = bboxes[i];
             return interactionState::MODE_SELECT;
         }
@@ -167,8 +168,9 @@ void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour, interactionSta
 
         //painter.fillRect(QRect(scaled_bbox.bottomLeft(), scaled_bbox.bottomRight()+QPoint(0,-10)).normalized(), QBrush(Qt::white));
 
-        painter.setFont(QFont("Helvetica", 10));
+        painter.setFont(QFont("Helvetica", 12));
         painter.drawText(scaled_bbox.bottomLeft(), bbox.classname);
+        painter.drawText(scaled_bbox.topRight(), QString::number(bbox.id));
 
     }
     painter.drawRect(scaled_bbox);
@@ -230,6 +232,7 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
             std::cout<<"finished editing"<<std::endl;
             bbox_state = WAIT_START;
             selected = false;
+            emit deselectLabel();
             region = NONE;
             updateLabel(*editbbox);
             drawLabel();
@@ -241,24 +244,30 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
 
     }else if(current_mode == MODE_SELECT && ev->button() == Qt::RightButton)
     {
-        bool ok;
-        QString current_classname = QInputDialog::getText(0, "Create new ID", "New ID: ",
-                                                 QLineEdit::Normal, "", &ok);
+        if(selected){
+            inputDialog->box = *editbbox;
+            inputDialog->load(true);
+            inputDialog->exec();
 
-        if(current_classname == ""){
+            if(inputDialog->box.id == -1){
 
-            qDebug() << "No class selected!";
+                qDebug() << "No ID is entered";
 
-        }else{
-            editbbox->classname = current_classname;
-            updateLabel(*editbbox);
-
+            }else{
+                editbbox->classname = inputDialog->box.classname;
+                editbbox->id = inputDialog->box.id;
+                editbbox->attributes = inputDialog->box.attributes;
+                updateLabel(*editbbox);
+                selected = false;
+                emit deselectLabel();
+            }
         }
     }else if(current_mode == MODE_DRAW && ev->button() == Qt::RightButton && bbox_state == DRAWING_BBOX){
             drawLabel();
             bbox_state = WAIT_START;
     }else if(ev->button() == Qt::LeftButton && selected == true){
         selected = false;
+        emit deselectLabel();
         drawLabel();
     }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton){
         if(bbox_state == WAIT_START){
@@ -271,10 +280,8 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
 
             bbox_final = image_location;
             //create ID dialog
-            bool ok;
-            QString current_classname = QInputDialog::getText(0, "Create new ID", "New ID: ",
-                                                 QLineEdit::Normal, "", &ok);
 
+            inputDialog->load(false);
             inputDialog->exec();
 
             QRect new_box = QRect(bbox_origin, bbox_final).normalized();
@@ -282,16 +289,16 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
 
             if(new_box.width() > 0 && new_box.height() > 0){
 
-                if(ok){
-                    if(current_classname == ""){
+                if(inputDialog->status){
+                    if(inputDialog->box.id == -1){
                         QMessageBox msgBox;
-                        msgBox.setText("Class not chosen");
+                        msgBox.setText("No ID entered");
                         msgBox.exec();
                     }else{
-                        addLabel(new_box, current_classname);
+                        addLabel(new_box, inputDialog->box);
                     }
                 }
-        }
+            }
     drawLabel();
     bbox_state = WAIT_START;
     }
@@ -408,6 +415,7 @@ void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour){
 
         painter.setFont(QFont("Helvetica", 10));
         painter.drawText(scaled_bbox.bottomLeft(), bbox.classname);
+        painter.drawText(scaled_bbox.topRight(), QString::number(bbox.id));
 
     }
 
@@ -456,10 +464,12 @@ void ImageLabel::drawLabel(){
     QLabel::setPixmap(scaled_pixmap);
 }
 
-void ImageLabel::addLabel(QRect rect, QString classname){
+void ImageLabel::addLabel(QRect rect, BoundingBox bbox){
     BoundingBox new_bbox;
-    new_bbox.classname = classname;
     new_bbox.rect = rect;
+    new_bbox.id = bbox.id;
+    new_bbox.classname = bbox.classname;
+    new_bbox.attributes = bbox.attributes;
 
     bboxes.append(new_bbox);
     emit newLabel(new_bbox);

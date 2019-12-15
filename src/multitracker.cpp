@@ -47,7 +47,7 @@ void MultiTrackerCV::init(const cv::Mat &image, QList<BoundingBox> bboxes){
         tracker->init(image, qrect2cv(bbox.rect));
 
         mutex.lock();
-        trackers.push_back({tracker, bbox.classname});
+        trackers.push_back({tracker, bbox});
         mutex.unlock();
     });
 }
@@ -70,7 +70,10 @@ void MultiTrackerCV::update(const cv::Mat &image){
 
             BoundingBox new_bbox;
             new_bbox.rect = new_roi;
-            new_bbox.classname = tracker.second;
+            new_bbox.classname = tracker.second.classname;
+            new_bbox.attributes = tracker.second.attributes;
+            new_bbox.classid = tracker.second.classid;
+            new_bbox.id = tracker.second.id;
 
             mutex.lock();
             bboxes.append(new_bbox);

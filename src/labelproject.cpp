@@ -70,6 +70,7 @@ bool LabelProject::checkDatabase(){
     if(!class_record.contains("class_id")) return false;
     if(!class_record.contains("class_name")) return false;
 
+    if(!id_record.contains("class_id")) return false;
     if(!id_record.contains("id")) return false;
     if(!id_record.contains("key")) return false;
     if(!id_record.contains("value")) return false;
@@ -162,18 +163,12 @@ bool LabelProject::createDatabase(QString fileName)
          * and label bounding boxes.
          */
 
-        //res = query.exec("CREATE table images (image_id INTEGER PRIMARY KEY ASC, "
-                   //"path varchar(256))");
-        //res &= query.exec("CREATE table classes (class_id INTEGER PRIMARY KEY ASC, "
-                   //"name varchar(32))");
-        //res &= query.exec("CREATE table labels (label_id INTEGER PRIMARY KEY ASC, "
-                   //"image_id int, class_id int, x int, y int, width int, height int, automatic int)");
         res = query.exec("CREATE table images (image_id INTEGER PRIMARY KEY ASC, "
                    "path varchar(256))");
         res &= query.exec("CREATE TABLE classes (class_id INTEGER PRIMARY KEY ASC, class_name)");
         res &= query.exec("CREATE TABLE meta (class_id INTEGER, attribute TEXT, value TEXT)");
-        res &= query.exec("CREATE table ids (id INTEGER, key TEXT, value TEXT)");
-        res &= query.exec("CREATE table labels (box_id INTEGER, image_id INTEGER, class_id INTEGER, id INTEGER,"
+        res &= query.exec("CREATE table ids (class_id INTEGER, id INTEGER, key TEXT, value TEXT, UNIQUE(class_id, id, key, value))");
+        res &= query.exec("CREATE table labels (box_id INTEGER PRIMARY KEY, image_id INTEGER, class_id INTEGER, id INTEGER,"
                           "x INTEGER, y INTEGER, w INTEGER, h INTEGER)");
 
         if(!res){
@@ -492,8 +487,9 @@ bool LabelProject::getLabels(int image_id, QList<BoundingBox> &bboxes){
     if(image_id > 0){
         {
             QSqlQuery query(db);
+            QSqlQuery query_attributes(db);
 
-            query.prepare("SELECT name, x, y, width, height FROM labels"
+            query.prepare("SELECT class_name, id, x, y, w, h FROM labels"
                           " INNER JOIN classes ON labels.class_id = classes.class_id"
                           " WHERE image_id = ?");
             query.addBindValue(image_id);
@@ -507,13 +503,27 @@ bool LabelProject::getLabels(int image_id, QList<BoundingBox> &bboxes){
                 BoundingBox new_bbox;
                 auto rec = query.record();
 
-                new_bbox.classname = rec.value(rec.indexOf("name")).toString();
+                new_bbox.classname = rec.value(rec.indexOf("class_name")).toString();
                 new_bbox.classid = getClassId(new_bbox.classname);
+                new_bbox.id = rec.value(rec.indexOf("id")).toInt();
+
+                query_attributes.prepare("SELECT key, value FROM ids WHERE id = (:id)"
+                                         " AND class_id = (:class_id)");
+                query_attributes.bindValue(":id", new_bbox.id);
+                query_attributes.bindValue(":class_id", new_bbox.classid);
+                query_attributes.exec();
+
+                while(query_attributes.next()){
+                    auto rec_attributes = query_attributes.record();
+                    QString attribute = rec_attributes.value(rec_attributes.indexOf("key")).toString();
+                    QString value = rec_attributes.value(rec_attributes.indexOf("value")).toString();
+                    new_bbox.attributes.insert(std::make_pair(attribute, value));
+                }
 
                 new_bbox.rect.setX(rec.value(rec.indexOf("x")).toInt());
                 new_bbox.rect.setY(rec.value(rec.indexOf("y")).toInt());
-                new_bbox.rect.setWidth(rec.value(rec.indexOf("width")).toInt());
-                new_bbox.rect.setHeight(rec.value(rec.indexOf("height")).toInt());
+                new_bbox.rect.setWidth(rec.value(rec.indexOf("w")).toInt());
+                new_bbox.rect.setHeight(rec.value(rec.indexOf("h")).toInt());
 
                 bboxes.append(new_bbox);
             }
@@ -560,18 +570,29 @@ bool LabelProject::removeLabel(QString fileName, BoundingBox bbox){
 
     bool res = false;
 
-    if(image_id > 0 && class_id > 0){
+    if(image_id > 0 && class_id > 0 && bbox.id > 0){
         {
             QSqlQuery query(db);
 
             query.prepare("DELETE FROM labels WHERE (image_id = :image_id AND class_id = :class_id"
-                          " AND x = :x AND y = :y AND width = :width AND height = :height)");
+                          " AND id = :id AND x = :x AND y = :y AND w = :w AND h = :h)");
             query.bindValue(":image_id", image_id);
             query.bindValue(":class_id", class_id);
+            query.bindValue(":id", bbox.id);
             query.bindValue(":x", bbox.rect.x());
             query.bindValue(":y", bbox.rect.y());
-            query.bindValue(":width", bbox.rect.width());
-            query.bindValue(":height", bbox.rect.height());
+            query.bindValue(":w", bbox.rect.width());
+            query.bindValue(":h", bbox.rect.height());
+
+            res = query.exec();
+
+            if(!res){
+                qDebug() << "Error: " << query.lastError();
+            }
+
+            query.prepare("DELETE FROM ids WHERE class_id = :class_id AND id = :id");
+            query.bindValue(":class_id", class_id);
+            query.bindValue(":id", bbox.id);
 
             res = query.exec();
 
@@ -579,7 +600,6 @@ bool LabelProject::removeLabel(QString fileName, BoundingBox bbox){
                 qDebug() << "Error: " << query.lastError();
             }
         }
-
     }
 
     return res;
@@ -777,18 +797,30 @@ bool LabelProject::addLabel(QString fileName, BoundingBox bbox)
     int image_id = getImageId(fileName);
     int class_id = getClassId(bbox.classname);
 
-    if(image_id > 0 && class_id > 0){
+    if(image_id > 0 && class_id > 0 && bbox.id > 0){
         {
             QSqlQuery query(db);
 
-            query.prepare("INSERT INTO labels (image_id, class_id, x, y, width, height)"
-                          "VALUES (:image_id, :class_id, :x, :y, :width, :height)");
+            for (auto &attribute : bbox.attributes){
+                query.prepare("INSERT INTO ids (class_id, id, key, value) VALUES (:class_id, :id, :key, :value)");
+                query.bindValue(":class_id", class_id);
+                query.bindValue(":id", bbox.id);
+                query.bindValue(":key", attribute.first);
+                query.bindValue(":value", attribute.second);
+                res &= query.exec();
+                if (!res)
+                    qDebug() << "Error: " << query.lastError();
+            }
+
+            query.prepare("INSERT INTO labels (image_id, class_id, id, x, y, w, h)"
+                          "VALUES (:image_id, :class_id, :id, :x, :y, :w, :h)");
             query.bindValue(":image_id", image_id);
             query.bindValue(":class_id", class_id);
+            query.bindValue(":id", bbox.id);
             query.bindValue(":x", bbox.rect.x());
             query.bindValue(":y", bbox.rect.y());
-            query.bindValue(":width", bbox.rect.width());
-            query.bindValue(":height", bbox.rect.height());
+            query.bindValue(":w", bbox.rect.width());
+            query.bindValue(":h", bbox.rect.height());
             res = query.exec();
 
             if(!res){
@@ -955,4 +987,8 @@ bool LabelProject::deleteValue(QString value, QString currentAttribute, QString 
         }
     }
     return res;
+}
+
+void LabelProject::sendMeta(){
+   emit updateMeta(meta);
 }

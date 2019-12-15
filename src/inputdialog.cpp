@@ -25,6 +25,30 @@ void clearLayout(QLayout* layout, bool deleteWidgets = true)
     }
 }
 
+void InputDialog::load(bool selected){
+    // TODO (kamal) refactor this function
+    if (selected){
+        //emit getMeta();
+        selections.clear();
+        int attribute_count = 0;
+        for(auto &attribute : meta[box.classname].attributes){
+            ui->gridLayout->addWidget(new QLabel(attribute.first), attribute_count, 0);
+            selections.insert(std::make_pair(attribute.first, new QComboBox));
+            for(auto &value : meta[box.classname].attributes[attribute.first])
+                selections[attribute.first]->addItem(value);
+            ui->gridLayout->addWidget(selections[attribute.first], attribute_count, 1);
+            attribute_count++;
+        }
+        ui->classComboBox->setCurrentText(box.classname);
+        ui->idLineEdit->setText(QString::number(box.id));
+        for(auto &attribute : meta[ui->classComboBox->currentText()].attributes){
+            selections[attribute.first]->setCurrentText(box.attributes[attribute.first]);
+        }
+    }else{
+        box.attributes.clear();
+        emit getMeta();
+    }
+}
 
 InputDialog::~InputDialog()
 {
@@ -34,37 +58,66 @@ InputDialog::~InputDialog()
 void InputDialog::updateMeta(std::map<QString, MetaObject> newMeta){
     meta = newMeta;
     ui->classComboBox->clear();
+    selections.clear();
     int attribute_count = 0;
-    if(!meta.empty()){
+    // TODO (kamal) this could break if we have classes but no meta?
+    if(!meta.empty() || !classes.empty()){
         ui->classComboBox->clear();
-        for(auto &object: meta)
-            if(object.second.className != "")
-                ui->classComboBox->addItem(object.second.className);
+        for(auto &entry : classes)
+            if(entry != "")
+                ui->classComboBox->addItem(entry);
         for(auto &attribute : meta[ui->classComboBox->currentText()].attributes){
             ui->gridLayout->addWidget(new QLabel(attribute.first), attribute_count, 0);
-            selection.insert(std::make_pair(attribute.first, new QComboBox));
+            selections.insert(std::make_pair(attribute.first, new QComboBox));
             for(auto &value : meta[ui->classComboBox->currentText()].attributes[attribute.first])
-                selection[attribute.first]->addItem(value);
-            ui->gridLayout->addWidget(selection[attribute.first], attribute_count, 1);
+                selections[attribute.first]->addItem(value);
+            ui->gridLayout->addWidget(selections[attribute.first], attribute_count, 1);
             attribute_count++;
         }
     }
 }
 
-void InputDialog::on_classComboBox_currentIndexChanged(QString currentText)
+void InputDialog::on_classComboBox_activated(const QString &currentText)
 {
     clearLayout(ui->gridLayout);
 
-    selection.clear();
+    selections.clear();
     int attribute_count = 0;
     if(!meta.empty()){
         for(auto &attribute : meta[currentText].attributes){
             ui->gridLayout->addWidget(new QLabel(attribute.first), attribute_count, 0);
-            selection.insert(std::make_pair(attribute.first, new QComboBox));
+            selections.insert(std::make_pair(attribute.first, new QComboBox));
             for(auto &value : meta[ui->classComboBox->currentText()].attributes[attribute.first])
-                selection[attribute.first]->addItem(value);
-            ui->gridLayout->addWidget(selection[attribute.first], attribute_count, 1);
+                selections[attribute.first]->addItem(value);
+            ui->gridLayout->addWidget(selections[attribute.first], attribute_count, 1);
             attribute_count++;
         }
     }
+}
+
+void InputDialog::on_buttonBox_accepted()
+{
+    box.attributes.clear();
+    box.classname = ui->classComboBox->currentText();
+
+    if (ui->idLineEdit->text() == "")
+        box.id = -1;
+    else
+        box.id = ui->idLineEdit->text().toInt();
+
+    for(auto &selection: selections){
+        box.attributes.insert(std::make_pair(selection.first, selection.second->currentText()));
+    }
+    status = true;
+    clearLayout(ui->gridLayout);
+}
+
+void InputDialog::getClassList(QList<QString> newClasses)
+{
+    classes = newClasses;
+}
+
+void InputDialog::on_buttonBox_rejected()
+{
+    status = false;
 }

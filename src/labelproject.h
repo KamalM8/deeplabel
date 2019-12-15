@@ -28,6 +28,7 @@ class LabelProject : public QObject
 {
 public:
     Q_OBJECT
+
 public:
     explicit LabelProject(QObject *parent = nullptr);
     ~LabelProject();
@@ -66,7 +67,6 @@ public:
 
 signals:
     void finished();
-
     void video_split_finished(QString);
     void load_finished();
     void load_progress(int);
@@ -79,6 +79,7 @@ public slots:
     bool addValue(QString newValue, QString currentAttribute, QString currentClass);
     bool deleteValue(QString value, QString currentAttribute, QString currentClass);
     bool getClassList(QList<QString> &classes);
+    void sendMeta();
 
 private:
     QSqlDatabase db;

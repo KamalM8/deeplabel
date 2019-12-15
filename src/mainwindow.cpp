@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->menuSettings->setEnabled(false);
 
     connect(ui->actionNew_Project, SIGNAL(triggered(bool)), this, SLOT(newProject()));
     connect(ui->actionOpen_Project, SIGNAL(triggered(bool)), this, SLOT(openProject()));
@@ -23,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAdd_Remove_Class, SIGNAL(triggered(bool)), this, SLOT(addRemoveClass()));
     connect(ui->actionAdd_Remove_Attributes, SIGNAL(triggered(bool)), this, SLOT(addRemoveAttributes()));
 
-    connect(classDialog, SIGNAL(loadClasses()), project, SLOT(getClassList(QList<QString>)));
+    //connect(classDialog, SIGNAL(loadClasses()), project, SLOT(getClassList(QList<QString>)));
     connect(classDialog, SIGNAL(addClass(QString)), this, SLOT(addClass(QString)));
     connect(this, SIGNAL(updateClassList(QList<QString>)), classDialog, SLOT(getClassList(QList<QString>)));
     connect(classDialog, SIGNAL(deleteClass(QString)), this, SLOT(removeClass(QString)));
@@ -32,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionInit_Tracking, SIGNAL(triggered(bool)), this, SLOT(initTrackers()));
     connect(ui->actionPropagate_Tracking, SIGNAL(triggered(bool)), this, SLOT(updateTrackers()));
     connect(ui->propagateCheckBox, SIGNAL(clicked(bool)), this, SLOT(toggleAutoPropagate(bool)));
-    connect(ui->refineTrackingCheckbox, SIGNAL(clicked(bool)), this, SLOT(toggleRefineTracking(bool)));
+    //connect(ui->refineTrackingCheckbox, SIGNAL(clicked(bool)), this, SLOT(toggleRefineTracking(bool)));
 
     connect(ui->nextUnlabelledButton, SIGNAL(clicked(bool)), this, SLOT(nextUnlabelled()));
     connect(ui->nextInstanceButton, SIGNAL(clicked(bool)), this, SLOT(nextInstance()));
@@ -41,16 +42,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->imageDisplayLayout->addWidget(display);
     currentImage = display->getImageLabel();
 
-    connect(this, SIGNAL(selectedClass(QString)), currentImage, SLOT(setClassname(QString)));
+    connect(this, SIGNAL(updateClassList(QList<QString>)), currentImage->inputDialog, SLOT(getClassList(QList<QString>)));
+    //connect(this, SIGNAL(selectedClass(QString)), currentImage, SLOT(setClassname(QString)));
     connect(currentImage, SIGNAL(newLabel(BoundingBox)), this, SLOT(addLabel(BoundingBox)));
     connect(currentImage, SIGNAL(removeLabel(BoundingBox)), this, SLOT(removeLabel(BoundingBox)));
     connect(currentImage, SIGNAL(updateLabel(BoundingBox, BoundingBox)), this, SLOT(updateLabel(BoundingBox, BoundingBox)));
     connect(currentImage, SIGNAL(selectLabel(BoundingBox)), this, SLOT(updateLabelInfo(BoundingBox)));
-    connect(currentImage, SIGNAL(setCurrentClass(QString)), this, SLOT(setCurrentClass(QString)));
+    connect(currentImage, SIGNAL(deselectLabel()), this, SLOT(defaultLabelInfo()));
+    //connect(currentImage, SIGNAL(setCurrentClass(QString)), this, SLOT(setCurrentClass(QString)));
 
     connect(ui->actionDraw_Tool, SIGNAL(triggered(bool)), currentImage, SLOT(setDrawMode()));
     connect(ui->actionSelect_Tool, SIGNAL(triggered(bool)), currentImage, SLOT(setSelectMode()));
-    connect(ui->classComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(setCurrentClass(QString)));
+    //connect(ui->classComboBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(setCurrentClass(QString)));
     connect(display, SIGNAL(image_loaded()), this, SLOT(updateImageInfo()));
 
     //connect(ui->removeClassButton, SIGNAL(clicked(bool)), this, SLOT(removeClass()));
@@ -63,8 +66,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->changeImageButton, SIGNAL(clicked(bool)), this, SLOT(updateDisplay()));
     connect(ui->imageNumberSpinbox, SIGNAL(editingFinished()), this, SLOT(updateDisplay()));
 
-    connect(ui->colourMapCombo, SIGNAL(currentIndexChanged(QString)), display, SLOT(setColourMap(QString)));
-    connect(ui->colourMapCheckbox, SIGNAL(clicked(bool)), display, SLOT(toggleColourMap(bool)));
+    //connect(ui->colourMapCombo, SIGNAL(currentIndexChanged(QString)), display, SLOT(setColourMap(QString)));
+    //connect(ui->colourMapCheckbox, SIGNAL(clicked(bool)), display, SLOT(toggleColourMap(bool)));
 
     connect(ui->actionWrap_images, SIGNAL(triggered(bool)), this, SLOT(enableWrap(bool)));
     connect(ui->actionExport, SIGNAL(triggered(bool)), this, SLOT(launchExportDialog()));
@@ -110,14 +113,15 @@ MainWindow::MainWindow(QWidget *parent) :
     detector.setNMSThreshold(settings->value("detector_nms_threshold", 0.4).toDouble());
     connect(ui->actionDetect_project, SIGNAL(triggered(bool)), this, SLOT(detectProject()));
     //ui->actionInit_Tracking->setIcon(awesome->icon(fa::objectungroup, options));
-    connect(attrDialog, SIGNAL(deleteAttribute(QString, QString)), project,
-            SLOT(deleteAttribute(QString, QString)));
+    //connect(attrDialog, SIGNAL(deleteAttribute(QString, QString)), project,
+            //SLOT(deleteAttribute(QString, QString)));
     connect(attrDialog, SIGNAL(addValue(QString, QString, QString)), project,
             SLOT(addValue(QString, QString, QString)));
     connect(attrDialog, SIGNAL(deleteValue(QString, QString, QString)), project,
             SLOT(deleteValue(QString, QString, QString)));
-    connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
+    connect(currentImage->inputDialog, SIGNAL(getMeta()), project, SLOT(sendMeta()));
     connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), currentImage->inputDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
+    connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
     resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
 
 }
@@ -178,9 +182,29 @@ void MainWindow::mergeProject(QString filename){
     updateDisplay();
 }
 void MainWindow::updateLabelInfo(BoundingBox bbox){
-    ui->labelClass->setText(bbox.classname);
+    if(ui->labelClass->text() == "-"){
+        ui->labelClass->setText(bbox.classname);
+        ui->labelID->setText(QString::number(bbox.id));
+        attributeLabel = new QLabel();
+        valueLabel = new QLabel();
+        for(auto &attribute : bbox.attributes){
+            attributeLabel->setText(attribute.first);
+            valueLabel->setText(attribute.second);
+            ui->formLayout->addRow(attributeLabel, valueLabel);
+        }
+    }
 }
 
+void MainWindow::defaultLabelInfo(){
+    ui->labelClass->setText("-");
+    ui->labelID->setText("-");
+    if (attributeLabel != nullptr)
+        delete attributeLabel;
+    if (valueLabel != nullptr)
+        delete valueLabel;
+}
+
+/*
 void MainWindow::setCurrentClass(QString name){
 
     if(ui->classComboBox->currentText() != name){
@@ -190,6 +214,7 @@ void MainWindow::setCurrentClass(QString name){
     current_class = name;
     emit selectedClass(current_class);
 }
+*/
 
 void MainWindow::addRemoveClass(){
     classDialog->load();
@@ -406,6 +431,7 @@ void MainWindow::openProject(QString fileName)
         if(project->loadDatabase(fileName)){
             initDisplay();
             setWindowTitle("DeepLabel - " + fileName);
+            ui->menuSettings->setEnabled(true);
         }else{
             QMessageBox::warning(this,tr("Remove Image"), tr("Failed to open project."));
             setWindowTitle("DeepLabel");
@@ -853,10 +879,12 @@ void MainWindow::nextImage(){
 
     ui->imageNumberSpinbox->setValue(current_index+1);
 
+    if(track_previous)
+        initTrackers();
     // Show the new image
     updateDisplay();
 
-    // Only auto-propagtae if we've enabled it and there are no boxes in the image already.
+    // Only auto-propagate if we've enabled it and there are no boxes in the image already.
     if(track_previous && currentImage->getBoundingBoxes().size() == 0){
         updateTrackers();
 
