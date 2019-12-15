@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->menuSettings->setEnabled(false);
 
+    ui->removeLabelsForwardButton->setEnabled(false);
+
     connect(ui->actionNew_Project, SIGNAL(triggered(bool)), this, SLOT(newProject()));
     connect(ui->actionOpen_Project, SIGNAL(triggered(bool)), this, SLOT(openProject()));
     connect(ui->actionMerge_Project, SIGNAL(triggered(bool)), this, SLOT(mergeProject()));
@@ -115,13 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //ui->actionInit_Tracking->setIcon(awesome->icon(fa::objectungroup, options));
     //connect(attrDialog, SIGNAL(deleteAttribute(QString, QString)), project,
             //SLOT(deleteAttribute(QString, QString)));
-    connect(attrDialog, SIGNAL(addValue(QString, QString, QString)), project,
-            SLOT(addValue(QString, QString, QString)));
-    connect(attrDialog, SIGNAL(deleteValue(QString, QString, QString)), project,
-            SLOT(deleteValue(QString, QString, QString)));
-    connect(currentImage->inputDialog, SIGNAL(getMeta()), project, SLOT(sendMeta()));
-    connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), currentImage->inputDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
-    connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
+
     resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
 
 }
@@ -185,23 +181,34 @@ void MainWindow::updateLabelInfo(BoundingBox bbox){
     if(ui->labelClass->text() == "-"){
         ui->labelClass->setText(bbox.classname);
         ui->labelID->setText(QString::number(bbox.id));
-        attributeLabel = new QLabel();
-        valueLabel = new QLabel();
+        int attributeIndex = 0;
         for(auto &attribute : bbox.attributes){
-            attributeLabel->setText(attribute.first);
-            valueLabel->setText(attribute.second);
-            ui->formLayout->addRow(attributeLabel, valueLabel);
+            ui->gridLayout->addWidget(new QLabel(attribute.first), attributeIndex, 0);
+            ui->gridLayout->addWidget(new QLabel(attribute.second), attributeIndex, 1);
+            attributeIndex ++;
+            //ui->formLayout->addRow(attributeLabel, valueLabel);
         }
+    }
+}
+
+void clearGridLayout(QLayout *layout) {
+    QLayoutItem *item;
+    while((item = layout->takeAt(0))) {
+        if (item->layout()) {
+            clearGridLayout(item->layout());
+        delete item->layout();
+        }
+        if (item->widget()) {
+           delete item->widget();
+        }
+        delete item;
     }
 }
 
 void MainWindow::defaultLabelInfo(){
     ui->labelClass->setText("-");
     ui->labelID->setText("-");
-    if (attributeLabel != nullptr)
-        delete attributeLabel;
-    if (valueLabel != nullptr)
-        delete valueLabel;
+    clearGridLayout(ui->gridLayout);
 }
 
 /*
@@ -436,6 +443,14 @@ void MainWindow::openProject(QString fileName)
             QMessageBox::warning(this,tr("Remove Image"), tr("Failed to open project."));
             setWindowTitle("DeepLabel");
         }
+    }
+    if(project != nullptr){
+        connect(attrDialog, SIGNAL(addValue(QString, QString, QString)), project, SLOT(addValue(QString, QString, QString)));
+        connect(attrDialog, SIGNAL(deleteValue(QString, QString, QString)), project, SLOT(deleteValue(QString, QString, QString)));
+        connect(currentImage->inputDialog, SIGNAL(getMeta()), project, SLOT(sendMeta()));
+        connect(currentImage->inputDialog, SIGNAL(checkDuplicateId(QString, QString)), project, SLOT(checkDuplicateId(QString, QString)));
+        connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), currentImage->inputDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
+        connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
     }
 
     return;

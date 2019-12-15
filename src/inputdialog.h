@@ -27,6 +27,7 @@ public:
 
 signals:
     void getMeta();
+    bool checkDuplicateId(QString, QString);
 
 private slots:
     void updateMeta(std::map<QString, MetaObject>);
@@ -39,6 +40,8 @@ private slots:
 
     void on_buttonBox_rejected();
 
+    void on_idLineEdit_textEdited(const QString &arg1);
+
 private:
     Ui::InputDialog *ui;
     std::map<QString, MetaObject> meta;
@@ -46,6 +49,8 @@ private:
     QLabel* valueLabel = new QLabel("value");
     std::map<QString, QComboBox*> selections;
     QList<QString> classes;
+    void fillAttributeForm(QString);
+    std::map<QString, int> idCounter;
 };
 
 #endif // INPUTDIALOG_H

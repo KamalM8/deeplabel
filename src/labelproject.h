@@ -80,6 +80,7 @@ public slots:
     bool deleteValue(QString value, QString currentAttribute, QString currentClass);
     bool getClassList(QList<QString> &classes);
     void sendMeta();
+    bool checkDuplicateId(QString className, QString id);
 
 private:
     QSqlDatabase db;

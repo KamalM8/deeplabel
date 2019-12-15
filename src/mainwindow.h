@@ -78,8 +78,6 @@ private:
     void updateLabels();
 
     QSettings* settings;
-    QLabel* attributeLabel;
-    QLabel* valueLabel;
 
 
 private slots:

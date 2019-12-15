@@ -388,7 +388,7 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
 }
 
 void ImageLabel::drawBoundingBox(BoundingBox bbox){
-    srand(static_cast<unsigned int>(bbox.classid));
+    srand(static_cast<unsigned int>(bbox.classid + 1));
     QColor colour(rand()%255, rand()%255, rand()%255);
     drawBoundingBox(bbox, colour);
 }
@@ -489,6 +489,7 @@ void ImageLabel::keyPressEvent(QKeyEvent *event)
     if(selected && (event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)){
         selected = false;
         emit removeLabel(*editbbox);
+        emit deselectLabel();
     }else if(current_mode == MODE_DRAW && event->key() == Qt::Key_Escape && bbox_state == DRAWING_BBOX){
             drawLabel();
             bbox_state = WAIT_START;

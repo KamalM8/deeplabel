@@ -144,6 +144,22 @@ bool LabelProject::loadMeta(){
     }
     return res;
 }
+bool LabelProject::checkDuplicateId(QString className, QString id){
+    QSqlQuery query(db);
+    int class_id = getClassId(className);
+
+    query.prepare("SELECT * FROM labels WHERE class_id = (:class_id) AND id = (:id)");
+    query.bindValue(":class_id", class_id);
+    query.bindValue(":id", id);
+    bool res = query.exec();
+
+    if(!res)
+        qDebug() << "Error: " << query.lastError();
+    else
+        return query.next();
+    return false;
+
+}
 
 bool LabelProject::createDatabase(QString fileName)
 {
@@ -544,6 +560,16 @@ bool LabelProject::removeLabels(QString fileName){
     if(image_id > 0){
         {
             QSqlQuery query(db);
+            /*
+            query.prepare("SELECT id FROM labels WHERE (image_id = :image_id");
+            query.bindValue(":image_id", image_id);
+            query.exec();
+
+            while (query.next()) {
+                int classID = query.value(0).toInt();
+                query.prepare("DELETE FROM ids WHERE (id = :id)");
+            }
+            */
 
             query.prepare("DELETE FROM labels WHERE (image_id = :image_id)");
             query.bindValue(":image_id", image_id);
