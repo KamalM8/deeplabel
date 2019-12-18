@@ -23,11 +23,13 @@ public:
     BoundingBox box;
     void load(bool);
     bool status = false;
+    std::map<QString, int> idCounter;
     ~InputDialog();
 
 signals:
     void getMeta();
     bool checkDuplicateId(QString, QString);
+    int getMaxID(QString);
 
 private slots:
     void updateMeta(std::map<QString, MetaObject>);
@@ -50,7 +52,6 @@ private:
     std::map<QString, QComboBox*> selections;
     QList<QString> classes;
     void fillAttributeForm(QString);
-    std::map<QString, int> idCounter;
 };
 
 #endif // INPUTDIALOG_H

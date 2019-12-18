@@ -449,6 +449,7 @@ void MainWindow::openProject(QString fileName)
         connect(attrDialog, SIGNAL(deleteValue(QString, QString, QString)), project, SLOT(deleteValue(QString, QString, QString)));
         connect(currentImage->inputDialog, SIGNAL(getMeta()), project, SLOT(sendMeta()));
         connect(currentImage->inputDialog, SIGNAL(checkDuplicateId(QString, QString)), project, SLOT(checkDuplicateId(QString, QString)));
+        connect(currentImage->inputDialog, SIGNAL(getMaxID(QString)), project, SLOT(sendMaxID(QString)));
         connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), currentImage->inputDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
         connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
     }

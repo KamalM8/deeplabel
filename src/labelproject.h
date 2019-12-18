@@ -73,6 +73,7 @@ signals:
     void updateMeta(std::map<QString, MetaObject> meta);
 
 public slots:
+    int sendMaxID(QString className);
     int addImageFolder(QString path);
     void cancelLoad();
     void addFolderRecursive(QString path_filter);

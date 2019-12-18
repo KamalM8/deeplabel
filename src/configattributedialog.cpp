@@ -99,6 +99,8 @@ void ConfigAttributeDialog::on_addValueButton_clicked()
     emit addValue(newValue, ui->attrComboBox->currentText(), ui->classComboBox->currentText());
 
     ui->valueComboBox->clear();
+    //std::reverse(meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()].begin(),
+            //meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()].end());
     for(auto &value : meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()]){
         if(value != "")
             ui->valueComboBox->addItem(value);

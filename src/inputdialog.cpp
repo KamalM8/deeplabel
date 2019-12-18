@@ -40,7 +40,6 @@ void InputDialog::fillAttributeForm(QString className){
 }
 
 void InputDialog::load(bool selected){
-    // TODO (kamal) refactor this function
     if (selected){
         clearLayout(ui->gridLayout);
         ui->classComboBox->clear();
@@ -58,7 +57,7 @@ void InputDialog::load(bool selected){
     }else{
         box.attributes.clear();
         emit getMeta();
-        ui->idLineEdit->setText(QString::number(idCounter[ui->classComboBox->currentText()]));
+        ui->idLineEdit->setText(QString::number(emit getMaxID(ui->classComboBox->currentText()) + 1));
     }
 }
 
@@ -84,7 +83,7 @@ void InputDialog::updateMeta(std::map<QString, MetaObject> newMeta){
 void InputDialog::on_classComboBox_activated(const QString &currentText)
 {
     clearLayout(ui->gridLayout);
-    ui->idLineEdit->setText(QString::number(idCounter[ui->classComboBox->currentText()]));
+    ui->idLineEdit->setText(QString::number(emit getMaxID(ui->classComboBox->currentText()) + 1));
 
     selections.clear();
     if(meta.find(currentText) != meta.end()){
@@ -96,8 +95,6 @@ void InputDialog::on_buttonBox_accepted()
 {
     box.attributes.clear();
     box.classname = ui->classComboBox->currentText();
-    idCounter[box.classname] = box.id;
-    idCounter[box.classname]++;
 
     if (ui->idLineEdit->text() == "")
         box.id = -1;

@@ -1018,3 +1018,23 @@ bool LabelProject::deleteValue(QString value, QString currentAttribute, QString 
 void LabelProject::sendMeta(){
    emit updateMeta(meta);
 }
+
+int LabelProject::sendMaxID(QString className){
+    int maxID = -1;
+    bool res = false;
+    int class_id = getClassId(className);
+    QSqlQuery query(db);
+
+    query.prepare("SELECT MAX(id) FROM labels WHERE class_id = :class_id");
+    query.bindValue(":class_id", class_id);
+    res = query.exec();
+
+    if(!res){
+       qDebug() << "Error: " << query.lastError();
+    }else{
+        if(query.next()){
+            maxID = query.value(0).toInt();
+        }
+    }
+    return maxID;
+}

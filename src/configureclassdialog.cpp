@@ -7,6 +7,7 @@ ConfigureClassDialog::ConfigureClassDialog(QWidget *parent) :
     ui(new Ui::ConfigureClassDialog)
 {
     ui->setupUi(this);
+    ui->addClass->setEnabled(false);
 }
 
 void ConfigureClassDialog::load()
@@ -29,6 +30,7 @@ void ConfigureClassDialog::on_addClass_clicked()
     ui->comboBox->clear();
 
     QString classname;
+    std::reverse(classes.begin(), classes.end());
     foreach(classname, classes){
         if(classname != "")
             ui->comboBox->addItem(classname);
@@ -50,4 +52,9 @@ void ConfigureClassDialog::on_deleteClass_clicked()
 void ConfigureClassDialog::getClassList(QList<QString> newClasses)
 {
     classes = newClasses;
+}
+
+void ConfigureClassDialog::on_addClassEdit_textEdited(const QString &arg1)
+{
+   ui->addClass->setEnabled(true);
 }

@@ -28,6 +28,8 @@ private slots:
 
     void getClassList(QList<QString>);
 
+    void on_addClassEdit_textEdited(const QString &arg1);
+
 private:
     Ui::ConfigureClassDialog *ui;
     QList<QString> classes;

@@ -488,6 +488,7 @@ void ImageLabel::keyPressEvent(QKeyEvent *event)
 
     if(selected && (event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)){
         selected = false;
+        inputDialog->idCounter[editbbox->classname]--;
         emit removeLabel(*editbbox);
         emit deselectLabel();
     }else if(current_mode == MODE_DRAW && event->key() == Qt::Key_Escape && bbox_state == DRAWING_BBOX){
