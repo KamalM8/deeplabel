@@ -14,6 +14,7 @@ ConfigAttributeDialog::ConfigAttributeDialog(QWidget *parent) :
 }
 
 void ConfigAttributeDialog::load(){
+    // update dialog attributes and values if meta information exists
     if(!meta.empty()){
         ui->attrComboBox->clear();
         for(auto &attribute : meta[ui->classComboBox->currentText()].attributes)
@@ -30,6 +31,7 @@ void ConfigAttributeDialog::load(){
 }
 
 void ConfigAttributeDialog::getClassList(QList<QString> new_classes){
+    // update dialog class list if list exists
     classes = new_classes;
     ui->classComboBox->clear();
 
@@ -48,6 +50,7 @@ ConfigAttributeDialog::~ConfigAttributeDialog()
 
 void ConfigAttributeDialog::on_addAttributeButton_clicked()
 {
+    // add new attribute to form only
     bool ok;
     QString newAttribute = QInputDialog::getText(0, "Add new attribute", "New attribute: ",
                      QLineEdit::Normal, "", &ok);
@@ -55,8 +58,7 @@ void ConfigAttributeDialog::on_addAttributeButton_clicked()
     classInfo->attributes[newAttribute];
     ui->attrComboBox->clear();
 
-    std::map<QString,std::vector<QString>>::iterator iter;
-    for(iter = classInfo->attributes.begin(); iter != classInfo->attributes.end(); ++iter){
+    for(auto iter = classInfo->attributes.begin(); iter != classInfo->attributes.end(); ++iter){
         if(iter->first != "")
             ui->attrComboBox->addItem(iter->first);
     }
@@ -72,14 +74,13 @@ void ConfigAttributeDialog::on_addAttributeButton_clicked()
 
 void ConfigAttributeDialog::on_deleteAttributeButton_clicked()
 {
-    //it values exist, delete all entries of that attribute
+    //if value exists, delete all entries of that attribute
     emit deleteAttribute(ui->attrComboBox->currentText(), ui->classComboBox->currentText());
     MetaObject* classInfo = &meta[ui->classComboBox->currentText()];
     classInfo->attributes.erase(ui->attrComboBox->currentText());
     ui->attrComboBox->clear();
 
-    std::map<QString,std::vector<QString>>::iterator iter;
-    for(iter = classInfo->attributes.begin(); iter!= classInfo->attributes.end(); ++iter){
+    for(auto iter = classInfo->attributes.rbegin(); iter!= classInfo->attributes.rend(); ++iter){
         if(iter->first != "")
             ui->attrComboBox->addItem(iter->first);
     }
@@ -93,24 +94,26 @@ void ConfigAttributeDialog::on_deleteAttributeButton_clicked()
 
 void ConfigAttributeDialog::on_addValueButton_clicked()
 {
+    // add value in both form and database (meta table)
     bool ok;
     QString newValue= QInputDialog::getText(0, "Add new value", "New value: ",
          QLineEdit::Normal, "", &ok);
     emit addValue(newValue, ui->attrComboBox->currentText(), ui->classComboBox->currentText());
 
     ui->valueComboBox->clear();
-    //std::reverse(meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()].begin(),
-            //meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()].end());
-    for(auto &value : meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()]){
-        if(value != "")
-            ui->valueComboBox->addItem(value);
+
+    auto iterStart = meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()].rbegin();
+    auto iterEnd= meta[ui->classComboBox->currentText()].attributes[ui->attrComboBox->currentText()].rend();
+    for(; iterStart!=iterEnd; ++iterStart){
+        if(*iterStart != "")
+            ui->valueComboBox->addItem(*iterStart);
     }
-    // TODO (kamal): show the latest addition on UI
 }
 
 
 void ConfigAttributeDialog::on_deleteValueButton_clicked()
 {
+    // delete value in both form and database (meta table)
     emit deleteValue(ui->valueComboBox->currentText(), ui->attrComboBox->currentText(), ui->classComboBox->currentText());
     ui->valueComboBox->clear();
 
@@ -122,6 +125,7 @@ void ConfigAttributeDialog::on_deleteValueButton_clicked()
 
 void ConfigAttributeDialog::on_classComboBox_currentIndexChanged(QString currentText)
 {
+    // update form to show attributes and values of current class
     ui->attrComboBox->clear();
     if (currentText != ""){
 
@@ -136,6 +140,7 @@ void ConfigAttributeDialog::on_classComboBox_currentIndexChanged(QString current
 
 void ConfigAttributeDialog::on_attrComboBox_currentIndexChanged(QString attribute)
 {
+    // update form to show values of selected attribute
     ui->valueComboBox->clear();
 
     for(auto &value : meta[ui->classComboBox->currentText()].attributes[attribute]){
@@ -147,5 +152,6 @@ void ConfigAttributeDialog::on_attrComboBox_currentIndexChanged(QString attribut
 }
 
 void ConfigAttributeDialog::updateMeta(std::map<QString, MetaObject> new_meta){
+    // get updated meta from database interface
     meta = new_meta;
 }

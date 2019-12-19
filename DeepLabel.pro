@@ -122,6 +122,8 @@ FORMS += \
 
 include(QtAwesome/QtAwesome/QtAwesome.pri)
 
+RESOURCES += qdarkstyle/style.qrc
+
 # Deploy apps in OS X and Windows
 isEmpty(TARGET_EXT) {
     win32 {

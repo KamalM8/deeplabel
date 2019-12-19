@@ -12,9 +12,10 @@ ConfigureClassDialog::ConfigureClassDialog(QWidget *parent) :
 
 void ConfigureClassDialog::load()
 {
-   ui->comboBox->clear();
-   if (!classes.empty())
-       for(auto &className : classes)
+    // update class dialog with existing classes
+    ui->comboBox->clear();
+       if (!classes.empty())
+           for(auto &className : classes)
            if(className != "")
                ui->comboBox->addItem(className);
 }
@@ -26,6 +27,7 @@ ConfigureClassDialog::~ConfigureClassDialog()
 
 void ConfigureClassDialog::on_addClass_clicked()
 {
+    // add class to dialog and database (classes table)
     emit addClass(ui->addClassEdit->text());
     ui->comboBox->clear();
 
@@ -39,6 +41,7 @@ void ConfigureClassDialog::on_addClass_clicked()
 
 void ConfigureClassDialog::on_deleteClass_clicked()
 {
+    // delete class from dialog and database (classes table)
     emit deleteClass(ui->comboBox->currentText());
     ui->comboBox->clear();
 
@@ -51,10 +54,15 @@ void ConfigureClassDialog::on_deleteClass_clicked()
 
 void ConfigureClassDialog::getClassList(QList<QString> newClasses)
 {
+    // get new classes from database interface
     classes = newClasses;
 }
 
-void ConfigureClassDialog::on_addClassEdit_textEdited(const QString &arg1)
+void ConfigureClassDialog::on_addClassEdit_textEdited(const QString &className)
 {
-   ui->addClass->setEnabled(true);
+    // disable button if field is empty
+    if (className != "")
+        ui->addClass->setEnabled(true);
+    else
+        ui->addClass->setEnabled(false);
 }

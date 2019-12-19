@@ -102,7 +102,9 @@ bool LabelProject::checkDatabase(){
 
     return true;
 }
+
 bool LabelProject::loadMeta(){
+    // Load class names, attributes and values
     bool res;
     QSqlQuery query(db);
     QSqlQuery query_value(db);
