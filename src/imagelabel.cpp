@@ -211,6 +211,9 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
         emit selectLabel(*editbbox);
         if (selected && bbox_state == WAIT_START) {
 
+            dragTimer->setSingleShot(true);
+            dragTimer->start(100);
+
             QPoint topLeft = editbbox->rect.topLeft();
             QPoint bottomRight = editbbox->rect.bottomRight();
             QPoint center = editbbox->rect.center();
@@ -227,7 +230,9 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
             else if(centerProxmity.contains(image_location)){
                 region = CENTER;
             }
-        }else if(selected && bbox_state == DRAWING_BBOX){
+        }
+        /*
+        else if(selected && bbox_state == DRAWING_BBOX){
 
             bbox_state = WAIT_START;
             selected = false;
@@ -236,7 +241,9 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
             updateLabel(*editbbox);
             drawLabel();
 
-        }else {
+        }
+        */
+        else {
             drawEditLabel(*editbbox);
             selected = true;
         }
@@ -272,16 +279,58 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
         selected = false;
         emit deselectLabel();
         drawLabel();
+
     }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton){
         // Initiate box creation mode
         if(bbox_state == WAIT_START){
 
+            dragTimer->setSingleShot(true);
+            dragTimer->start(100);
+            std::cout<<"start " << dragTimer->remainingTime()<<std::endl;
+
+            clickTimer->setSingleShot(true);
+            clickTimer->start(10);
+
             bbox_origin = image_location;
 
             bbox_state = DRAWING_BBOX;
+        }
 
-        }else if(bbox_state == DRAWING_BBOX){
+    //drawLabel();
+    //bbox_state = WAIT_START;
+    }
+}
+
+QRect ImageLabel::clip(QRect bbox){
+
+    auto xpad = (width() - scaled_width)/2;
+
+    bbox.setLeft(std::max(xpad, bbox.left()));
+    bbox.setRight(std::min(width()-xpad, bbox.right()));
+
+    auto ypad = (height() - scaled_height)/2;
+
+    bbox.setTop(std::max(ypad, bbox.top()));
+    bbox.setBottom(std::min(height()-ypad, bbox.bottom()));
+
+    return bbox;
+}
+
+void ImageLabel::mouseReleaseEvent(QMouseEvent *ev){
+
+        std::cout<<"remaining "<< dragTimer->remainingTime() << std::endl;
+        std::cout<<dragTimer->isActive()<<std::endl;
+        if (dragTimer->isActive()){
+            hold_status = false;
+            return;
+        }else{
+            dragTimer->stop();
+            hold_status = true;
+        }
+
+        if(current_mode == MODE_DRAW && bbox_state == DRAWING_BBOX && hold_status == true){
             // drawing finished
+            QPoint image_location = getScaledImageLocation(ev->pos());
             bbox_final = image_location;
 
             //create ID dialog
@@ -302,36 +351,36 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
                     }
                 }
             }
-    drawLabel();
-    bbox_state = WAIT_START;
-    }
-    }
-}
+            drawLabel();
+            bbox_state = WAIT_START;
+        }else if(current_mode == MODE_SELECT){
 
-QRect ImageLabel::clip(QRect bbox){
+            if(selected && bbox_state == DRAWING_BBOX && hold_status == true){
+                dragTimer->stop();
+                bbox_state = WAIT_START;
+                selected = false;
+                emit deselectLabel();
+                region = NONE;
+                updateLabel(*editbbox);
+            }else if(selected && bbox_state == WAIT_START) {
+                ev->ignore();
+            }else{
+                ev->ignore();
+            }
 
-    auto xpad = (width() - scaled_width)/2;
-
-    bbox.setLeft(std::max(xpad, bbox.left()));
-    bbox.setRight(std::min(width()-xpad, bbox.right()));
-
-    auto ypad = (height() - scaled_height)/2;
-
-    bbox.setTop(std::max(ypad, bbox.top()));
-    bbox.setBottom(std::min(height()-ypad, bbox.bottom()));
-
-    return bbox;
-}
-
-void ImageLabel::mouseReleaseEvent(QMouseEvent *ev){
-    ev->ignore();
+        }else{
+            dragTimer->stop();
+            bbox_state = WAIT_START;
+            drawLabel();
+        }
 }
 
 void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
     // refactor this
     if(base_pixmap.isNull()) return;
+    std::cout<<"move "<<dragTimer->remainingTime()<<std::endl;
 
-    if(current_mode == MODE_DRAW && bbox_state == DRAWING_BBOX ){
+    if(current_mode == MODE_DRAW && bbox_state == DRAWING_BBOX){
 
         scaledPixmap();
         QPoint image_location = getScaledImageLocation(ev->pos());
@@ -341,7 +390,7 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
         QLabel::setPixmap(scaled_pixmap);
         bbox_state = DRAWING_BBOX;
 
-    }else if(current_mode == MODE_SELECT && selected){
+    }else if(current_mode == MODE_SELECT && selected && hold_status == true){
         if(region == TOP_LEFT){
 
             scaledPixmap();
@@ -374,7 +423,6 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
             bbox_state = DRAWING_BBOX;
 
         }
-
     }
 }
 
@@ -486,7 +534,6 @@ void ImageLabel::keyPressEvent(QKeyEvent *event)
     if(selected && (event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)){
         // Remove label using delete or backspace
         selected = false;
-        inputDialog->idCounter[editbbox->classname]--;
         emit removeLabel(*editbbox);
         emit deselectLabel();
     }else if(current_mode == MODE_DRAW && event->key() == Qt::Key_Escape && bbox_state == DRAWING_BBOX){
@@ -495,6 +542,7 @@ void ImageLabel::keyPressEvent(QKeyEvent *event)
         bbox_state = WAIT_START;
     }else if(current_mode == MODE_SELECT && selected == true && event->key() == Qt::Key_Escape){
         // Cancel label selection  on Escape key
+        emit deselectLabel();
         selected = false;
         drawLabel();
     }else{

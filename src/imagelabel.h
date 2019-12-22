@@ -1,7 +1,6 @@
 #ifndef IMAGELABEL_H
 #define IMAGELABEL_H
 
-
 #include <QLabel>
 #include <QPixmap>
 #include <QPainter>
@@ -10,9 +9,11 @@
 #include <QResizeEvent>
 #include <QInputDialog>
 #include <QMessageBox>
-#include "inputdialog.h"
+#include <QTimer>
 
 #include <opencv2/opencv.hpp>
+
+#include "inputdialog.h"
 #include "boundingbox.h"
 #include "inputdialog.h"
 
@@ -84,6 +85,7 @@ private:
     QString current_classname;
     bool shouldScaleContents = false;
     bool selected = false;
+    bool hold_status = false;
     std::vector<std::vector<int>> colorlist;
 
     QList<BoundingBox> bboxes;
@@ -120,6 +122,8 @@ private:
     void drawBoundingBoxes(QPoint location);
     interactionState checkMode(QPoint location);
     proximity region;
+    QTimer* dragTimer = new QTimer();
+    QTimer* clickTimer = new QTimer();
 };
 
 #endif // IMAGELABEL_H

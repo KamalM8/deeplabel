@@ -58,6 +58,7 @@ void InputDialog::load(bool selected){
         }
     }else{
         // create default input form
+        status = false;
         box.attributes.clear();
         emit getMeta();
         ui->idLineEdit->setText(QString::number(emit getMaxID(ui->classComboBox->currentText()) + 1));
