@@ -83,7 +83,10 @@ SOURCES += \
         multitracker.cpp \
     src/baseexporter.cpp \
     src/cocoexporter.cpp \
+    src/configattributedialog.cpp \
+    src/configureclassdialog.cpp \
     src/imagedisplay.cpp \
+    src/inputdialog.cpp \
     src/pascalvocexporter.cpp \
     detection/detectoropencv.cpp \
     detection/detectorsetupdialog.cpp
@@ -97,20 +100,29 @@ HEADERS += \
         darknetexporter.h \
         exportdialog.h \
         multitracker.h \
+    src/MetaObject.h \
     src/baseexporter.h \
     src/cocoexporter.h \
+    src/configattributedialog.h \
+    src/configureclassdialog.h \
     src/imagedisplay.h \
+    src/inputdialog.h \
     src/pascalvocexporter.h \
     detection/detectoropencv.h \
     detection/detectorsetupdialog.h
 
 FORMS += \
+    src/configattributedialog.ui \
+    src/configureclassdialog.ui \
+    src/inputdialog.ui \
         src/mainwindow.ui \
     src/exportdialog.ui \
     src/imagedisplay.ui \
     detection/detectorsetupdialog.ui
 
 include(QtAwesome/QtAwesome/QtAwesome.pri)
+
+RESOURCES += qdarkstyle/style.qrc
 
 # Deploy apps in OS X and Windows
 isEmpty(TARGET_EXT) {

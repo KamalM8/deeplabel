@@ -10,9 +10,11 @@
 #include <QResizeEvent>
 #include <QInputDialog>
 #include <QMessageBox>
+#include "inputdialog.h"
 
 #include <opencv2/opencv.hpp>
-#include <boundingbox.h>
+#include "boundingbox.h"
+#include "inputdialog.h"
 
 enum drawState{
     WAIT_START,
@@ -43,6 +45,7 @@ public:
     QList<BoundingBox> getBoundingBoxes(){return bboxes;}
     cv::Mat getImage(void){return image;}
     bool scaleContents(void);
+    InputDialog* inputDialog = new InputDialog;
 
 signals:
     void newLabel(BoundingBox);
@@ -50,19 +53,21 @@ signals:
     void updateLabel(BoundingBox, BoundingBox);
     void setOccluded(BoundingBox);
     void setCurrentClass(QString);
+    void selectLabel(BoundingBox);
+    void deselectLabel();
 
 public slots:
     void setPixmap ( QPixmap & );
     void setImage(cv::Mat &image){this->image = image;}
     void setBoundingBoxes(QList<BoundingBox> input_bboxes);
     void updateLabel(BoundingBox);
-    void addLabel(QRect rect, QString classname);
+    void addLabel(QRect rect, BoundingBox bbox);
     void addLabel(BoundingBox box);
     void zoom(double factor);
 
-    void setDrawMode();
-    void setDrawDragMode();
-    void setSelectMode();
+    //void setDrawMode();
+    //void setDrawDragMode();
+    //void setSelectMode();
 
     void resizeEvent(QResizeEvent *);
     void mousePressEvent(QMouseEvent *event);

@@ -6,7 +6,6 @@ ImageLabel::ImageLabel(QWidget *parent) :
     setMinimumSize(1,1);
     setAlignment(Qt::AlignCenter);
     setMouseTracking(true);
-
     // This is important to preserve the aspect ratio
     setScaledContents(true);
 
@@ -18,9 +17,7 @@ ImageLabel::ImageLabel(QWidget *parent) :
 
     setFocusPolicy(Qt::StrongFocus);
 
-    rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-
-    setDrawMode();
+    setCursor(Qt::CrossCursor);
 }
 
 void ImageLabel::setPixmap ( QPixmap & p)
@@ -85,6 +82,7 @@ QPixmap ImageLabel::scaledPixmap(void)
     return scaled_pixmap;
 }
 
+/*
 void ImageLabel::setDrawMode(){
     current_mode = MODE_DRAW;
     setCursor(Qt::CrossCursor);
@@ -97,12 +95,15 @@ void ImageLabel::setDrawDragMode(){
     rubberBand->setGeometry(QRect(bbox_origin, QSize()));
     rubberBand->show();
 }
+*/
 
+/*
 void ImageLabel::setSelectMode(){
     current_mode = MODE_SELECT;
     setCursor(Qt::ArrowCursor);
     rubberBand->hide();
 }
+*/
 
 QPoint ImageLabel::getScaledImageLocation(QPoint location){
     // If the image is fit to window
@@ -124,6 +125,8 @@ QPoint ImageLabel::getScaledImageLocation(QPoint location){
 
 interactionState ImageLabel::checkMode(QPoint image_location)
 {
+    // Select Mode: location within bounding boxes
+    // Draw Mode: location outside bounding boxes
     scaledPixmap();
 
     if(scale_factor == 1.0){
@@ -134,6 +137,7 @@ interactionState ImageLabel::checkMode(QPoint image_location)
     for (int i = 0; i<bboxes.size(); i++) {
         if (bboxes[i].rect.contains(image_location)){
             editbbox = &bboxes[i];
+            auto somevalue1 = editbbox->attributes;
             original_box = bboxes[i];
             return interactionState::MODE_SELECT;
         }
@@ -142,6 +146,8 @@ interactionState ImageLabel::checkMode(QPoint image_location)
 }
 
 void ImageLabel::drawEditLabel(BoundingBox bbox){
+
+    // display selected bounding box
     scaledPixmap();
     drawBoundingBox(bbox, Qt::green, MODE_SELECT);
     QLabel::setPixmap(scaled_pixmap);
@@ -149,6 +155,7 @@ void ImageLabel::drawEditLabel(BoundingBox bbox){
 
 void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour, interactionState mode){
 
+    // draw bounding box with specific color
     if(scaled_pixmap.isNull()) return;
 
     QPainter painter;
@@ -167,14 +174,17 @@ void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour, interactionSta
 
         //painter.fillRect(QRect(scaled_bbox.bottomLeft(), scaled_bbox.bottomRight()+QPoint(0,-10)).normalized(), QBrush(Qt::white));
 
-        painter.setFont(QFont("Helvetica", 10));
+        painter.setFont(QFont("Helvetica", 12));
         painter.drawText(scaled_bbox.bottomLeft(), bbox.classname);
+        painter.drawText(scaled_bbox.topRight(), QString::number(bbox.id));
 
     }
+
     painter.drawRect(scaled_bbox);
 
+    // Draw anchors upon selection
     if(mode == MODE_SELECT){
-        pen.setWidth(5);
+        pen.setWidth(6);
         painter.setPen(pen);
         painter.drawPoint(scaled_bbox.topLeft());
         painter.drawPoint(scaled_bbox.bottomRight());
@@ -197,7 +207,8 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
 
     if(current_mode == MODE_SELECT && ev->button() == Qt::LeftButton){
 
-        //drawLabel(image_location);
+        // update label
+        emit selectLabel(*editbbox);
         if (selected && bbox_state == WAIT_START) {
 
             QPoint topLeft = editbbox->rect.topLeft();
@@ -208,28 +219,19 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
             QRect centerProxmity(center.rx() - 10, center.ry() - 10, 20, 20);
 
             if(topLeftProxmity.contains(image_location)) {
-
                 region =  TOP_LEFT;
-                std::cout<<"near top left"<<std::endl;
-
             }
             else if(bottomRightProxmity.contains(image_location)) {
-
                 region = BOTTOM_RIGHT;
-                std::cout<<"near bottom right"<<std::endl;
-
             }
             else if(centerProxmity.contains(image_location)){
-
                 region = CENTER;
-                std::cout<<"near center"<<std::endl;
-
             }
         }else if(selected && bbox_state == DRAWING_BBOX){
 
-            std::cout<<"finished editing"<<std::endl;
             bbox_state = WAIT_START;
             selected = false;
+            emit deselectLabel();
             region = NONE;
             updateLabel(*editbbox);
             drawLabel();
@@ -241,26 +243,37 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
 
     }else if(current_mode == MODE_SELECT && ev->button() == Qt::RightButton)
     {
-        bool ok;
-        QString current_classname = QInputDialog::getText(0, "Create new ID", "New ID: ",
-                                                 QLineEdit::Normal, "", &ok);
+        // label class and attribute editing
+        if(selected){
+            inputDialog->box = *editbbox;
+            inputDialog->load(true);
+            inputDialog->exec();
 
-        if(current_classname == ""){
+            if(inputDialog->box.id == -1){
 
-            qDebug() << "No class selected!";
+                qDebug() << "No ID is entered";
 
-        }else{
-            editbbox->classname = current_classname;
-            updateLabel(*editbbox);
-
+            }else{
+                editbbox->classname = inputDialog->box.classname;
+                editbbox->id = inputDialog->box.id;
+                editbbox->attributes = inputDialog->box.attributes;
+                updateLabel(*editbbox);
+                selected = false;
+                emit deselectLabel();
+            }
         }
+
     }else if(current_mode == MODE_DRAW && ev->button() == Qt::RightButton && bbox_state == DRAWING_BBOX){
-            drawLabel();
-            bbox_state = WAIT_START;
-    }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton && selected == true){
+        // Cancel drawing the box
+        drawLabel();
+        bbox_state = WAIT_START;
+
+    }else if(ev->button() == Qt::LeftButton && selected == true){
         selected = false;
+        emit deselectLabel();
         drawLabel();
     }else if(current_mode == MODE_DRAW && ev->button() == Qt::LeftButton){
+        // Initiate box creation mode
         if(bbox_state == WAIT_START){
 
             bbox_origin = image_location;
@@ -268,28 +281,27 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
             bbox_state = DRAWING_BBOX;
 
         }else if(bbox_state == DRAWING_BBOX){
-
+            // drawing finished
             bbox_final = image_location;
+
             //create ID dialog
-            bool ok;
-            QString current_classname = QInputDialog::getText(0, "Create new ID", "New ID: ",
-                                                 QLineEdit::Normal, "", &ok);
+            inputDialog->load(false);
+            inputDialog->exec();
 
             QRect new_box = QRect(bbox_origin, bbox_final).normalized();
-            //new_box = clip(new_box);
 
             if(new_box.width() > 0 && new_box.height() > 0){
 
-                if(ok){
-                    if(current_classname == ""){
+                if(inputDialog->status){
+                    if(inputDialog->box.id == -1){
                         QMessageBox msgBox;
-                        msgBox.setText("Class not chosen");
+                        msgBox.setText("No ID entered");
                         msgBox.exec();
                     }else{
-                        addLabel(new_box, current_classname);
+                        addLabel(new_box, inputDialog->box);
                     }
                 }
-        }
+            }
     drawLabel();
     bbox_state = WAIT_START;
     }
@@ -312,24 +324,15 @@ QRect ImageLabel::clip(QRect bbox){
 }
 
 void ImageLabel::mouseReleaseEvent(QMouseEvent *ev){
-    /*if(current_mode == MODE_DRAW_DRAG){
-        bbox_final = ev->pos();
-
-        QRect bbox(bbox_origin, bbox_final);
-        rubberBand->setGeometry(clip(bbox.normalized()));
-
-        bbox_state = WAIT_START;
-    }else{
-        ev->ignore();
-    }*/
     ev->ignore();
 }
 
 void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
-
+    // refactor this
     if(base_pixmap.isNull()) return;
 
     if(current_mode == MODE_DRAW && bbox_state == DRAWING_BBOX ){
+
         scaledPixmap();
         QPoint image_location = getScaledImageLocation(ev->pos());
         createbbox.rect.setTopLeft(bbox_origin);
@@ -337,7 +340,7 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
         drawBoundingBox(createbbox, Qt::blue, MODE_DRAW);
         QLabel::setPixmap(scaled_pixmap);
         bbox_state = DRAWING_BBOX;
-        std::cout<<"box creation"<<std::endl;
+
     }else if(current_mode == MODE_SELECT && selected){
         if(region == TOP_LEFT){
 
@@ -350,7 +353,6 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
             drawBoundingBox(*editbbox, Qt::green, MODE_SELECT);
             QLabel::setPixmap(scaled_pixmap);
             bbox_state = DRAWING_BBOX;
-            std::cout<<"resizing top left"<<std::endl;
 
         }else if(region == BOTTOM_RIGHT) {
 
@@ -361,7 +363,6 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
             drawBoundingBox(*editbbox, Qt::green, MODE_SELECT);
             QLabel::setPixmap(scaled_pixmap);
             bbox_state = DRAWING_BBOX;
-            std::cout<<"resizing bottom right"<<std::endl;
 
         }else if(region == CENTER){
 
@@ -371,7 +372,6 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
             drawBoundingBox(*editbbox, Qt::green, MODE_SELECT);
             QLabel::setPixmap(scaled_pixmap);
             bbox_state = DRAWING_BBOX;
-            std::cout<<"moving center"<<std::endl;
 
         }
 
@@ -379,7 +379,8 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *ev){
 }
 
 void ImageLabel::drawBoundingBox(BoundingBox bbox){
-    srand(static_cast<unsigned int>(bbox.classid));
+    // Choose random color for a class
+    srand(static_cast<unsigned int>(bbox.classid + 1));
     QColor colour(rand()%255, rand()%255, rand()%255);
     drawBoundingBox(bbox, colour);
 }
@@ -406,6 +407,7 @@ void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour){
 
         painter.setFont(QFont("Helvetica", 10));
         painter.drawText(scaled_bbox.bottomLeft(), bbox.classname);
+        painter.drawText(scaled_bbox.topRight(), QString::number(bbox.id));
 
     }
 
@@ -416,6 +418,7 @@ void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour){
 }
 
 void ImageLabel::setBoundingBoxes(QList<BoundingBox> input_bboxes){
+    // populate bounding box list
     bboxes.clear();
     bboxes = input_bboxes;
     drawLabel();
@@ -423,6 +426,7 @@ void ImageLabel::setBoundingBoxes(QList<BoundingBox> input_bboxes){
 
 void ImageLabel::updateLabel(BoundingBox box)
 {
+    // update Label in both screen and database
     emit updateLabel(original_box, box);
 }
 
@@ -440,6 +444,7 @@ bool ImageLabel::scaleContents(void){
 }
 
 void ImageLabel::drawLabel(){
+    // draw all bounding boxes
 
     scaledPixmap();
 
@@ -454,10 +459,13 @@ void ImageLabel::drawLabel(){
     QLabel::setPixmap(scaled_pixmap);
 }
 
-void ImageLabel::addLabel(QRect rect, QString classname){
+void ImageLabel::addLabel(QRect rect, BoundingBox bbox){
+    // add label to screen and database
     BoundingBox new_bbox;
-    new_bbox.classname = classname;
     new_bbox.rect = rect;
+    new_bbox.id = bbox.id;
+    new_bbox.classname = bbox.classname;
+    new_bbox.attributes = bbox.attributes;
 
     bboxes.append(new_bbox);
     emit newLabel(new_bbox);
@@ -466,6 +474,7 @@ void ImageLabel::addLabel(QRect rect, QString classname){
 }
 
 void ImageLabel::addLabel(BoundingBox box){
+    // seems redundant
     emit newLabel(box);
 
     drawLabel();
@@ -475,14 +484,19 @@ void ImageLabel::keyPressEvent(QKeyEvent *event)
 {
 
     if(selected && (event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)){
+        // Remove label using delete or backspace
         selected = false;
+        inputDialog->idCounter[editbbox->classname]--;
         emit removeLabel(*editbbox);
+        emit deselectLabel();
     }else if(current_mode == MODE_DRAW && event->key() == Qt::Key_Escape && bbox_state == DRAWING_BBOX){
-            drawLabel();
-            bbox_state = WAIT_START;
+        // Cancel label drawing on Escape key
+        drawLabel();
+        bbox_state = WAIT_START;
     }else if(current_mode == MODE_SELECT && selected == true && event->key() == Qt::Key_Escape){
-            selected = false;
-            drawLabel();
+        // Cancel label selection  on Escape key
+        selected = false;
+        drawLabel();
     }else{
         event->ignore();
     }
