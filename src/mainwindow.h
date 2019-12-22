@@ -110,9 +110,6 @@ private slots:
     void removeImageLabels(void);
     void removeImageLabelsForward();
 
-    void setDrawMode(void);
-    void setSelectMode(void);
-
     void enableWrap(bool enable);
     void launchExportDialog();
     void handleExportDialog();
@@ -121,27 +118,14 @@ private slots:
     void initTrackers();
     void updateTrackers();
     void toggleAutoPropagate(bool state);
-    void toggleRefineTracking(bool state);
     void nextUnlabelled();
     void nextInstance();
-
-    QRect refineBoundingBox(cv::Mat image, QRect bbox, int margin=5, bool debug_save=false);
-    QRect refineBoundingBoxSimple(cv::Mat image, QRect bbox, int margin=5, bool debug_save=false);
-    void refineBoxes();
 
     void updateImageInfo();
     void updateLabelInfo(BoundingBox);
     void defaultLabelInfo();
     void jumpForward(int n = 10);
     void jumpBackward(int n = 10);
-
-    void detectObjects(cv::Mat &image, QString image_path);
-    void detectCurrentImage();
-    void detectProject();
-    void setupDetector();
-    void setConfidenceThreshold();
-    void setNMSThreshold();
-
 
     void updateCurrentIndex(int index);
 signals:

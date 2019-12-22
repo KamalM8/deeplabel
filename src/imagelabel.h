@@ -65,9 +65,9 @@ public slots:
     void addLabel(BoundingBox box);
     void zoom(double factor);
 
-    void setDrawMode();
-    void setDrawDragMode();
-    void setSelectMode();
+    //void setDrawMode();
+    //void setDrawDragMode();
+    //void setSelectMode();
 
     void resizeEvent(QResizeEvent *);
     void mousePressEvent(QMouseEvent *event);

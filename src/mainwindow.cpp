@@ -219,14 +219,6 @@ void MainWindow::addRemoveAttributes(){
     attrDialog->exec();
 }
 
-void MainWindow::detectCurrentImage(){
-    auto image = display->getOriginalImage();
-    detectObjects(image, current_imagepath);
-
-    updateClassList();
-    updateLabels();
-}
-
 void MainWindow::toggleAutoPropagate(bool state){
     track_previous = state;
 }
@@ -469,6 +461,10 @@ void MainWindow::nextInstance(void){
     }
 }
 
+void MainWindow::initTrackers(void){
+    multitracker->init(currentImage->getImage(), currentImage->getBoundingBoxes());
+}
+
 void MainWindow::updateTrackers(void){
 
     // If there are no labels, and we're tracking the previous frame
@@ -513,10 +509,6 @@ void MainWindow::nextImage(){
     // Only auto-propagate if we've enabled it and there are no boxes in the image already.
     if(track_previous && currentImage->getBoundingBoxes().size() == 0){
         updateTrackers();
-
-        if(refine_on_propagate){
-            refineBoxes();
-        }
     }
 
     updateLabels();

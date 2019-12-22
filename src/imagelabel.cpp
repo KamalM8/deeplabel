@@ -6,7 +6,6 @@ ImageLabel::ImageLabel(QWidget *parent) :
     setMinimumSize(1,1);
     setAlignment(Qt::AlignCenter);
     setMouseTracking(true);
-
     // This is important to preserve the aspect ratio
     setScaledContents(true);
 
@@ -18,7 +17,7 @@ ImageLabel::ImageLabel(QWidget *parent) :
 
     setFocusPolicy(Qt::StrongFocus);
 
-    setDrawMode();
+    setCursor(Qt::CrossCursor);
 }
 
 void ImageLabel::setPixmap ( QPixmap & p)
@@ -83,6 +82,7 @@ QPixmap ImageLabel::scaledPixmap(void)
     return scaled_pixmap;
 }
 
+/*
 void ImageLabel::setDrawMode(){
     current_mode = MODE_DRAW;
     setCursor(Qt::CrossCursor);
@@ -95,12 +95,15 @@ void ImageLabel::setDrawDragMode(){
     rubberBand->setGeometry(QRect(bbox_origin, QSize()));
     rubberBand->show();
 }
+*/
 
+/*
 void ImageLabel::setSelectMode(){
     current_mode = MODE_SELECT;
     setCursor(Qt::ArrowCursor);
     rubberBand->hide();
 }
+*/
 
 QPoint ImageLabel::getScaledImageLocation(QPoint location){
     // If the image is fit to window
@@ -152,6 +155,7 @@ void ImageLabel::drawEditLabel(BoundingBox bbox){
 
 void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour, interactionState mode){
 
+    // draw bounding box with specific color
     if(scaled_pixmap.isNull()) return;
 
     QPainter painter;
@@ -203,6 +207,7 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
 
     if(current_mode == MODE_SELECT && ev->button() == Qt::LeftButton){
 
+        // update label
         emit selectLabel(*editbbox);
         if (selected && bbox_state == WAIT_START) {
 
