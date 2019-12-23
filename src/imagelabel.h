@@ -10,6 +10,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QTimer>
+#include <QMargins>
 
 #include <opencv2/opencv.hpp>
 
@@ -31,7 +32,9 @@ enum interactionState{
 enum proximity{
     NONE,
     TOP_LEFT,
+    TOP_RIGHT,
     CENTER,
+    BOTTOM_LEFT,
     BOTTOM_RIGHT,
 };
 
