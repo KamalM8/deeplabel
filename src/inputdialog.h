@@ -5,6 +5,7 @@
 #include <QGridLayout>
 #include <QComboBox>
 #include <QLabel>
+#include <QShortcut>
 
 #include "boundingbox.h"
 #include "MetaObject.h"
