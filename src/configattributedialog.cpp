@@ -55,7 +55,10 @@ void ConfigAttributeDialog::on_addAttributeButton_clicked()
     QString newAttribute = QInputDialog::getText(0, "Add new attribute", "New attribute: ",
                      QLineEdit::Normal, "", &ok);
     MetaObject* classInfo = &meta[ui->classComboBox->currentText()];
-    classInfo->attributes[newAttribute];
+    if(ok && !newAttribute.isEmpty())
+        classInfo->attributes[newAttribute];
+    else
+        return
     ui->attrComboBox->clear();
 
     for(auto iter = classInfo->attributes.begin(); iter != classInfo->attributes.end(); ++iter){
@@ -98,7 +101,11 @@ void ConfigAttributeDialog::on_addValueButton_clicked()
     bool ok;
     QString newValue= QInputDialog::getText(0, "Add new value", "New value: ",
          QLineEdit::Normal, "", &ok);
-    emit addValue(newValue, ui->attrComboBox->currentText(), ui->classComboBox->currentText());
+
+    if(ok && !newValue.isEmpty())
+        emit addValue(newValue, ui->attrComboBox->currentText(), ui->classComboBox->currentText());
+    else
+        return;
 
     ui->valueComboBox->clear();
 
