@@ -51,6 +51,9 @@
       <property name="text">
        <string>Add Class</string>
       </property>
+      <property name="default">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item row="1" column="1">

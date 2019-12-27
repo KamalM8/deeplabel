@@ -8,16 +8,26 @@ ConfigureClassDialog::ConfigureClassDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->addClass->setEnabled(false);
+    ui->deleteClass->setEnabled(false);
+    ui->comboBox->setEnabled(false);
+
 }
 
-void ConfigureClassDialog::load()
-{
+void ConfigureClassDialog::load(){
     // update class dialog with existing classes
     ui->comboBox->clear();
-       if (!classes.empty())
-           for(auto &className : classes)
+    if (!classes.empty())
+       for(auto &className : classes)
            if(className != "")
                ui->comboBox->addItem(className);
+
+    if(ui->comboBox->count() != 0){
+        ui->comboBox->setEnabled(true);
+        ui->deleteClass->setEnabled(true);
+    }else{
+        ui->comboBox->setEnabled(false);
+        ui->deleteClass->setEnabled(false);
+    }
 }
 
 ConfigureClassDialog::~ConfigureClassDialog()
@@ -30,12 +40,21 @@ void ConfigureClassDialog::on_addClass_clicked()
     // add class to dialog and database (classes table)
     emit addClass(ui->addClassEdit->text());
     ui->comboBox->clear();
+    ui->addClassEdit->clear();
 
     QString classname;
     std::reverse(classes.begin(), classes.end());
     foreach(classname, classes){
         if(classname != "")
             ui->comboBox->addItem(classname);
+    }
+
+    if(ui->comboBox->count() != 0){
+        ui->comboBox->setEnabled(true);
+        ui->deleteClass->setEnabled(true);
+    }else{
+        ui->comboBox->setEnabled(false);
+        ui->deleteClass->setEnabled(false);
     }
 }
 
@@ -49,6 +68,13 @@ void ConfigureClassDialog::on_deleteClass_clicked()
     foreach(classname, classes){
         if(classname != "")
             ui->comboBox->addItem(classname);
+    }
+    if(ui->comboBox->count() != 0){
+        ui->comboBox->setEnabled(true);
+        ui->deleteClass->setEnabled(true);
+    }else{
+        ui->comboBox->setEnabled(false);
+        ui->deleteClass->setEnabled(false);
     }
 }
 
