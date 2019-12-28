@@ -131,8 +131,11 @@ void InputDialog::on_buttonBox_rejected()
 void InputDialog::on_idLineEdit_textEdited(const QString &user_id)
 {
     // make line edit field editable with valid id
-    bool accepted = emit checkDuplicateId(ui->classComboBox->currentText(), user_id);
-    if (!accepted)
+    bool duplicate = emit checkDuplicateId(ui->classComboBox->currentText(), user_id);
+    bool ok;
+    ui->idLineEdit->text().toInt(&ok);
+
+    if (ok && !duplicate)
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     else
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
