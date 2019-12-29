@@ -319,18 +319,17 @@ void MainWindow::updateImageList(){
         ui->navigationGroupBox->setDisabled(true);
         ui->actionExport->setDisabled(true);
         ui->imageIndexLabel->setText(QString("-"));
+        ui->imageNumberSpinbox->setMaximum(number_images);
+        ui->imageNumberSpinbox->setValue(1);
     }else{
         ui->imageGroupBox->setEnabled(true);
         ui->labelGroupBox->setEnabled(true);
         ui->navigationGroupBox->setEnabled(true);
         ui->actionExport->setEnabled(true);
+        ui->imageProgressBar->setValue(0);
+        ui->imageProgressBar->setMaximum(number_images);
     }
 
-    ui->imageProgressBar->setValue(0);
-    ui->imageProgressBar->setMaximum(number_images);
-
-    ui->imageNumberSpinbox->setMaximum(number_images);
-    ui->imageNumberSpinbox->setValue(1);
 
 }
 
