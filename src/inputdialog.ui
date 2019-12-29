@@ -11,11 +11,15 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Input Label</string>
+   <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="1" column="0" colspan="4">
-    <layout class="QGridLayout" name="gridLayout"/>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Class</string>
+     </property>
+    </widget>
    </item>
    <item row="0" column="1">
     <widget class="QComboBox" name="classComboBox"/>
@@ -27,19 +31,11 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Class</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="3">
-    <widget class="QLineEdit" name="idLineEdit">
-     <property name="maxLength">
-      <number>6</number>
-     </property>
-    </widget>
+    <widget class="QLineEdit" name="idLineEdit"/>
+   </item>
+   <item row="1" column="0" colspan="4">
+    <layout class="QGridLayout" name="gridLayout"/>
    </item>
    <item row="2" column="1" colspan="3">
     <widget class="QDialogButtonBox" name="buttonBox">
