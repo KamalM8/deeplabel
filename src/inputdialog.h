@@ -6,6 +6,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QShortcut>
+#include <QToolTip>
 
 #include "boundingbox.h"
 #include "MetaObject.h"
