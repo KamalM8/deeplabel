@@ -127,6 +127,7 @@ private:
     proximity region;
     QTimer* dragTimer = new QTimer();
     QTimer* clickTimer = new QTimer();
+    bool same_box = false;
 };
 
 #endif // IMAGELABEL_H
