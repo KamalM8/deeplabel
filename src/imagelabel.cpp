@@ -109,16 +109,21 @@ interactionState ImageLabel::checkMode(QPoint image_location)
     if(scale_factor == 1.0){
         scaled_pixmap = base_pixmap;
     }
+    same_box = false;
 
     BoundingBox bbox;
     // TODO (Kamal) refactor this
 
     if(selected){
         // Slightly bigger box to take anchors
-        // in consideration
+        // into consideration
         for (int i = 0; i<bboxes.size(); i++) {
             QRect temp = bboxes[i].rect + QMargins(10, 10, 10, 10);
             if (temp.contains(image_location)){
+                if(selected_bbox.rect == bboxes[i].rect)
+                    same_box = true;
+                else
+                    same_box = false;
                 editbbox = &bboxes[i];
                 original_box = bboxes[i];
                 return interactionState::MODE_SELECT;
@@ -128,6 +133,10 @@ interactionState ImageLabel::checkMode(QPoint image_location)
         // Original box
         for (int i = 0; i<bboxes.size(); i++) {
             if (bboxes[i].rect.contains(image_location)){
+                if(selected_bbox.rect == bboxes[i].rect)
+                    same_box = true;
+                else
+                    same_box = false;
                 editbbox = &bboxes[i];
                 original_box = bboxes[i];
                 return interactionState::MODE_SELECT;
@@ -201,7 +210,8 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
         // update label info panel
         emit selectLabel(*editbbox);
 
-        if (selected && bbox_state == WAIT_START) {
+        if (selected && bbox_state == WAIT_START && same_box) {
+            // Modify selected box
 
             // Timer before release event
             // to simulate click and hold
@@ -241,13 +251,21 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
                 region = CENTER;
                 setCursor(Qt::SizeAllCursor);
             }
-        }
-        else {
+        }else if (!selected && bbox_state == WAIT_START) {
+            // select box from image
             drawEditLabel(*editbbox);
             selected = true;
+            selected_bbox = *editbbox;
+        }else if (selected && bbox_state == WAIT_START && !same_box){
+            // handle removing selection if you click into a different
+            // bounding box
+            region = NONE;
+            selected = false;
+            emit deselectLabel();
+            drawLabel();
         }
 
-    }else if(current_mode == MODE_SELECT && ev->button() == Qt::RightButton)
+    }else if(current_mode == MODE_SELECT && ev->button() == Qt::RightButton && same_box)
     {
         // label class and attribute editing
         if(selected){
@@ -276,7 +294,7 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
         drawLabel();
         bbox_state = WAIT_START;
 
-    }else if(ev->button() == Qt::LeftButton && selected == true){
+    }else if(ev->button() == Qt::LeftButton && selected == true && !same_box){
         // Cancel selection upon click outside box
         region = NONE;
         selected = false;
