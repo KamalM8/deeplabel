@@ -1040,3 +1040,87 @@ int LabelProject::sendMaxID(QString className){
     }
     return maxID;
 }
+
+bool LabelProject::getLabeledImagesID(QList<int> &images){
+
+    /*!
+     * Get a list of labeled images in the database with ids, which is cleared prior to retrieval. Returns false if the database query failed.
+     */
+    bool res = false;
+    {
+        QSqlQuery query(db);
+        res = query.exec("SELECT DISTINCT image_id FROM labels");
+
+        if(!res){
+            qDebug() << "Error: " << query.lastError();
+        }else{
+
+            images.clear();
+
+            while (query.next()) {
+                int image_id = query.value(0).toInt();
+                images.push_back(image_id);
+            }
+        }
+    }
+
+    return res;
+}
+
+void LabelProject::getMetaInfo(std::map<QString, MetaObject> &metaInfo){
+    metaInfo = meta;
+}
+
+
+bool LabelProject::getImageBboxes(int imageId, std::map<int, BoundingBox> &boxMap){
+    /*!
+     * Get a map of of box id and boxes in a certain image. Returns false if the database query failed.
+     */
+
+    bool res = false;
+    {
+        QSqlQuery query(db);
+        res = query.prepare("SELECT box_id, id, class_id, x, y, w, h"
+                            " FROM labels WHERE (image_id = :image_id)");
+        query.bindValue(":image_id", imageId);
+        query.exec();
+
+        if(!res){
+            qDebug() << "Error: " << query.lastError();
+            return false;
+        }else{
+
+            boxMap.clear();
+            BoundingBox bbox;
+
+            while (query.next()) {
+                //get bounding box id and class id
+                bbox.id = query.value(1).toInt();
+                bbox.classid = query.value(2).toInt();
+
+                // get bounding box attributes
+                QSqlQuery query_attributes(db);
+                res = query_attributes.prepare("SELECT key, value FROM ids WHERE"
+                                               " id = :id AND class_id = :class_id");
+                query_attributes.bindValue(":id", bbox.id);
+                query_attributes.bindValue(":class_id", bbox.classid);
+                res = query_attributes.exec();
+
+                while(query_attributes.next()){
+                    QString attribute = query_attributes.value(0).toString();
+                    QString value = query_attributes.value(1).toString();
+                    bbox.attributes[attribute] = value;
+                }
+
+                // get bounding box classname and rect
+                bbox.classname = getClassName(query.value(2).toInt());
+                bbox.rect.setX(query.value(3).toInt());
+                bbox.rect.setY(query.value(4).toInt());
+                bbox.rect.setWidth(query.value(5).toInt());
+                bbox.rect.setHeight(query.value(6).toInt());
+                boxMap.insert(std::make_pair(query.value(0).toInt(), bbox));
+            }
+            return true;
+        }
+    }
+}

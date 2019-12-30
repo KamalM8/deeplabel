@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->menuSettings->setEnabled(false);
+    ui->actionimport_labels->setEnabled(false);
 
     ui->removeLabelsForwardButton->setEnabled(false);
 
@@ -21,14 +22,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionAdd_image_folder, SIGNAL(triggered(bool)), this, SLOT(addImageFolder()));
     connect(ui->actionAdd_image_folders, SIGNAL(triggered(bool)), this, SLOT(addImageFolders()));
 
+    // Navigation connections
     connect(ui->actionNextImage, SIGNAL(triggered(bool)), this, SLOT(nextImage()));
     connect(ui->actionPreviousImage, SIGNAL(triggered(bool)), this, SLOT(previousImage()));
     connect(ui->actionJump_forward, SIGNAL(triggered(bool)), this, SLOT(jumpForward()));
     connect(ui->actionJump_backward, SIGNAL(triggered(bool)), this, SLOT(jumpBackward()));
-    connect(ui->actionAdd_Remove_Class, SIGNAL(triggered(bool)), this, SLOT(addRemoveClass()));
-    connect(ui->actionAdd_Remove_Attributes, SIGNAL(triggered(bool)), this, SLOT(addRemoveAttributes()));
+
+    // Importer connection
+    connect(ui->actionimport_labels, SIGNAL(triggered(bool)), this, SLOT(importLabels()));
 
     // Class and Attribute Dialog connections
+    connect(ui->actionAdd_Remove_Class, SIGNAL(triggered(bool)), this, SLOT(addRemoveClass()));
+    connect(ui->actionAdd_Remove_Attributes, SIGNAL(triggered(bool)), this, SLOT(addRemoveAttributes()));
     connect(classDialog, SIGNAL(addClass(QString)), this, SLOT(addClass(QString)));
     connect(this, SIGNAL(updateClassList(QList<QString>)), classDialog, SLOT(getClassList(QList<QString>)));
     connect(classDialog, SIGNAL(deleteClass(QString)), this, SLOT(removeClass(QString)));
@@ -209,6 +214,7 @@ void MainWindow::defaultLabelInfo(){
 
 void MainWindow::addRemoveClass(){
     // launch Class configuration dialogue
+    updateClassList();
     classDialog->load();
     classDialog->exec();
 }
@@ -255,6 +261,7 @@ void MainWindow::openProject(QString fileName)
 
     if(fileName != ""){
         settings->setValue("project_folder", QFileInfo(fileName).absoluteDir().absolutePath());
+        projectName = fileName;
         if(project->loadDatabase(fileName)){
             initDisplay();
             setWindowTitle("DeepLabel - " + fileName);
@@ -326,6 +333,7 @@ void MainWindow::updateImageList(){
         ui->actionExport->setEnabled(true);
         ui->imageProgressBar->setValue(0);
         ui->imageProgressBar->setMaximum(number_images);
+        ui->actionimport_labels->setEnabled(true);
     }
 
     ui->imageNumberSpinbox->setMaximum(number_images);
@@ -650,36 +658,12 @@ void MainWindow::handleExportDialog(){
 
     QThread* export_thread = new QThread;
 
-    if(export_dialog->getExporter() == "Kitti"){
-        KittiExporter exporter(project);
-        exporter.moveToThread(export_thread);
-        exporter.setOutputFolder(export_dialog->getOutputFolder());
-        exporter.splitData(export_dialog->getValidationSplit(), export_dialog->getShuffle());
-        exporter.setExportUnlabelled(export_dialog->getExportUnlablled());
-        exporter.process();
-    }else if(export_dialog->getExporter() == "Darknet"){
-        DarknetExporter exporter(project);
-        exporter.moveToThread(export_thread);
-        exporter.generateLabelIds(export_dialog->getNamesFile());
-        exporter.setOutputFolder(export_dialog->getOutputFolder());
-        exporter.splitData(export_dialog->getValidationSplit(), export_dialog->getShuffle());
-        exporter.setExportUnlabelled(export_dialog->getExportUnlablled());
-        exporter.process();
-    }else if(export_dialog->getExporter() == "Pascal VOC"){
-        PascalVocExporter exporter(project);
-        exporter.moveToThread(export_thread);
-        exporter.setOutputFolder(export_dialog->getOutputFolder());
-        exporter.splitData(export_dialog->getValidationSplit(), export_dialog->getShuffle());
-        exporter.process(export_dialog->getCreateLabelMap());
-
-    }else if(export_dialog->getExporter().startsWith("COCO")){
-        CocoExporter exporter(project);
-        exporter.moveToThread(export_thread);
-        exporter.setOutputFolder(export_dialog->getOutputFolder());
-        exporter.splitData(export_dialog->getValidationSplit(), export_dialog->getShuffle());
-        exporter.setExportUnlabelled(export_dialog->getExportUnlablled());
-        exporter.process();
-    }
+    Exporter exporter(project);
+    exporter.moveToThread(export_thread);
+    exporter.setOutputFolder(export_dialog->getOutputFolder());
+    exporter.setDataName(projectName);
+    exporter.setContributer(export_dialog->getContributer());
+    exporter.export_labels();
 }
 
 void MainWindow::launchExportDialog(){
@@ -690,6 +674,20 @@ void MainWindow::launchExportDialog(){
     connect(export_dialog, SIGNAL(accepted()), this, SLOT(handleExportDialog()));
 
     export_dialog->open();
+}
+
+void MainWindow::importLabels(){
+
+    // get label .json file
+    QString openDir = settings->value("project_folder", QDir::homePath()).toString();
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import Labels"),
+                                                        openDir,
+                                                        tr("Label file (*.json)"));
+
+    Importer importer(project);
+    importer.load(fileName);
+    updateClassList();
+    updateLabels();
 }
 
 MainWindow::~MainWindow()

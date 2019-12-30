@@ -1,17 +1,17 @@
 #ifndef COCOEXPORTER_H
 #define COCOEXPORTER_H
 
-#include <baseexporter.h>
+#include <exporter.h>
 
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 
-class CocoExporter : public BaseExporter
+class CocoExporter : public Exporter
 {
     Q_OBJECT
 public:
-    explicit CocoExporter(LabelProject *project, QObject *parent = nullptr) : BaseExporter(project, parent){}
+    explicit CocoExporter(LabelProject *project, QObject *parent = nullptr) : Exporter(project, parent){}
 
 public slots:
     void process();

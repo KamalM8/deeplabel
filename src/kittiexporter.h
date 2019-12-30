@@ -1,7 +1,7 @@
 #ifndef KITTIEXPORTER_H
 #define KITTIEXPORTER_H
 
-#include <baseexporter.h>
+#include <exporter.h>
 
 class KittiExporter : public BaseExporter
 {

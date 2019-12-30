@@ -211,7 +211,7 @@
          <bool>false</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -336,7 +336,7 @@
      <x>0</x>
      <y>0</y>
      <width>892</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -399,6 +399,10 @@
    </attribute>
    <addaction name="actionPreviousImage"/>
    <addaction name="actionNextImage"/>
+   <addaction name="separator"/>
+   <addaction name="separator"/>
+   <addaction name="actionimport_labels"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionPreviousImage">
@@ -612,6 +616,14 @@
   <action name="actionAdd_Remove_Attributes">
    <property name="text">
     <string>Add/Remove Attributes</string>
+   </property>
+  </action>
+  <action name="actionimport_labels">
+   <property name="text">
+    <string>import_labels</string>
+   </property>
+   <property name="toolTip">
+    <string>import labels from a json file</string>
    </property>
   </action>
  </widget>

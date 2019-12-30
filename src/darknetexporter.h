@@ -1,7 +1,7 @@
 #ifndef DARKNETEXPORTER_H
 #define DARKNETEXPORTER_H
 
-#include <baseexporter.h>
+#include <exporter.h>
 
 class DarknetExporter : public BaseExporter
 {

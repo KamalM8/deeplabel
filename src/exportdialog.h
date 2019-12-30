@@ -20,23 +20,12 @@ public:
     explicit ExportDialog(QWidget *parent = nullptr);
     ~ExportDialog();
 
-    QString getExporter(){return current_exporter; }
     QString getOutputFolder(){return output_folder; }
-    QString getNamesFile(){return names_file; }
-    int getShuffle(){return do_shuffle; }
-    double getValidationSplit(){
-        return static_cast<double>(validation_split_pc)/100.0;
-    }
-    bool getCreateLabelMap();
-    bool getExportUnlablled();
+    QString getContributer(){return contributer;}
 
 private slots:
-    void setNamesFile(QString path="");
     void setOutputFolder(QString path="");
-    void setValidationSplit(int value);
-    void toggleShuffle(bool shuffle);
-    void toggleExporter();
-    void setExportUnlabelled(bool res);
+    void setContributer(QString name="");
 private:
     Ui::ExportDialog *ui;
     bool checkOK();
@@ -45,10 +34,7 @@ private:
 
     QString output_folder = "";
     QString names_file = "";
-    QString current_exporter = "Darknet";
-    bool do_shuffle = false;
-    int validation_split_pc = 80;
-    bool export_unlabelled;
+    QString contributer = "";
 
 };
 

@@ -42,6 +42,8 @@ public:
     bool addAsset(QString fileName);
     void addVideo(QString fileName, QString outputFolder);
     bool getImageList(QList<QString> &images);
+    bool getLabeledImagesID(QList<int> &images);
+    bool getImageBboxes(int id, std::map<int, BoundingBox> &boxMap);
     bool removeImage(QString fileName);
     bool imageInDB(QString fileName);
 
@@ -63,6 +65,7 @@ public:
     QString getClassName(int classID);
     void assignThread(QThread* thread);
 
+    void getMetaInfo(std::map<QString, MetaObject> &metaInfo);
     bool loadMeta();
 
 signals:
