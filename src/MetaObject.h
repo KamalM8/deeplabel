@@ -3,6 +3,7 @@
 
 #include <map>
 #include <QString>
+#include <vector>
 
 struct MetaObject{
     QString className;

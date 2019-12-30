@@ -77,17 +77,14 @@ SOURCES += \
         mainwindow.cpp \
         labelproject.cpp \
         imagelabel.cpp \
-        kittiexporter.cpp \
-        darknetexporter.cpp \
         exportdialog.cpp \
         multitracker.cpp \
-    src/baseexporter.cpp \
     src/cocoexporter.cpp \
     src/configattributedialog.cpp \
     src/configureclassdialog.cpp \
+    src/exporter.cpp \
     src/imagedisplay.cpp \
     src/inputdialog.cpp \
-    src/pascalvocexporter.cpp \
     detection/detectoropencv.cpp \
     detection/detectorsetupdialog.cpp
 
@@ -96,18 +93,15 @@ HEADERS += \
         labelproject.h \
         imagelabel.h \
         boundingbox.h \
-        kittiexporter.h \
-        darknetexporter.h \
         exportdialog.h \
         multitracker.h \
     src/MetaObject.h \
-    src/baseexporter.h \
     src/cocoexporter.h \
     src/configattributedialog.h \
     src/configureclassdialog.h \
+    src/exporter.h \
     src/imagedisplay.h \
     src/inputdialog.h \
-    src/pascalvocexporter.h \
     detection/detectoropencv.h \
     detection/detectorsetupdialog.h
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>327</width>
-    <height>177</height>
+    <height>146</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,114 +16,31 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="1">
+     <item row="0" column="1">
       <widget class="QLineEdit" name="outputFolderLineEdit">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QComboBox" name="exportSelectComboBox">
-       <item>
-        <property name="text">
-         <string>COCO (JSON)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Darknet</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Kitti</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Pascal VOC</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="5" column="0" colspan="2">
-      <widget class="QCheckBox" name="labelMapCheckbox">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Save VOC label maps</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="namesFilePushButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>20</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>20</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0" colspan="3">
-      <widget class="QCheckBox" name="randomSplitCheckbox">
-       <property name="text">
-        <string>Randomise Split</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Validation Split</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1" colspan="2">
-      <widget class="QSpinBox" name="validationSplitSpinbox">
-       <property name="suffix">
-        <string>%</string>
-       </property>
-       <property name="maximum">
-        <number>100</number>
-       </property>
-       <property name="value">
-        <number>80</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="namesFileLineEdit">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
+     <item row="1" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Output Type: </string>
+        <string>Contributor</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="contributerLineEdit"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Output Folder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
       <widget class="QPushButton" name="outputFolderPushButton">
        <property name="minimumSize">
         <size>
@@ -139,30 +56,6 @@
        </property>
        <property name="text">
         <string>...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Output Folder</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Names file</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QCheckBox" name="exportLabelledCheckbox">
-       <property name="text">
-        <string>Export unlabelled images</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -189,12 +82,12 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>257</x>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>274</y>
+     <y>145</y>
     </hint>
    </hints>
   </connection>
@@ -205,12 +98,12 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>317</x>
+     <y>136</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
-     <y>274</y>
+     <y>145</y>
     </hint>
    </hints>
   </connection>

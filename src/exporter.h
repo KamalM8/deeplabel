@@ -1,10 +1,12 @@
-#ifndef BASEEXPORTER_H
-#define BASEEXPORTER_H
+#ifndef EXPORTER_H
+#define EXPORTER_H
 
 #include <QObject>
 #include <QDateTime>
 #include <QImageReader>
 #include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 #include <opencv2/opencv.hpp>
 #include <random>
@@ -12,34 +14,28 @@
 #include <labelproject.h>
 #include <boundingbox.h>
 
-class BaseExporter : public QObject
+class Exporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit BaseExporter(LabelProject *project, QObject *parent = nullptr);
+    explicit Exporter(LabelProject *project, QObject *parent = nullptr);
 
 signals:
     void export_progress(int);
 
 public slots:
-    void splitData(float split=1, bool shuffle=false, int seed=42);
     bool setOutputFolder(QString folder);
     void setExportUnlabelled(bool res){export_unlabelled = res;}
-    virtual void process() = 0;
+    void setDataName(QString name){dataName = name;}
+    void setContributer(QString name){contributer = name;}
+    bool export_labels();
+    //void process();
 
 protected:
     LabelProject *project;
-    QList<QString> train_set;
-    QList<QString> validation_set;
     QList<QString> images;
-
-    QString train_folder;
-    QString train_label_folder;
-    QString train_image_folder;
-
-    QString val_folder;
-    QString val_label_folder;
-    QString val_image_folder;
+    QString contributer;
+    QString dataName;
 
     QString output_folder;
 
@@ -52,4 +48,4 @@ protected:
     bool saveImage(cv::Mat &image, const QString output, const double scale_x = -1.0, const double scale_y = -1.0);
 };
 
-#endif // BASEEXPORTER_H
+#endif // EXPORTER_H

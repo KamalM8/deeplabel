@@ -17,9 +17,6 @@
 #include <imagelabel.h>
 #include <labelproject.h>
 
-#include <kittiexporter.h>
-#include <darknetexporter.h>
-#include <pascalvocexporter.h>
 #include <cocoexporter.h>
 
 #include <detection/detectoropencv.h>
@@ -71,6 +68,7 @@ private:
     QList<QString> classes;
     QString current_imagepath;
     QString current_class;
+    QString projectName;
 
     int number_images;
     void updateImageList();

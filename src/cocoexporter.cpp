@@ -145,7 +145,4 @@ bool CocoExporter::processImages(const QString folder, const QString label_filen
 void CocoExporter::process(){
     image_id = 0;
     label_id = 0;
-
-    processImages(train_folder, "train", train_set);
-    processImages(val_folder, "val", validation_set);
 }

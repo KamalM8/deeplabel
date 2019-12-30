@@ -255,6 +255,7 @@ void MainWindow::openProject(QString fileName)
 
     if(fileName != ""){
         settings->setValue("project_folder", QFileInfo(fileName).absoluteDir().absolutePath());
+        projectName = fileName;
         if(project->loadDatabase(fileName)){
             initDisplay();
             setWindowTitle("DeepLabel - " + fileName);
@@ -650,36 +651,12 @@ void MainWindow::handleExportDialog(){
 
     QThread* export_thread = new QThread;
 
-    if(export_dialog->getExporter() == "Kitti"){
-        KittiExporter exporter(project);
-        exporter.moveToThread(export_thread);
-        exporter.setOutputFolder(export_dialog->getOutputFolder());
-        exporter.splitData(export_dialog->getValidationSplit(), export_dialog->getShuffle());
-        exporter.setExportUnlabelled(export_dialog->getExportUnlablled());
-        exporter.process();
-    }else if(export_dialog->getExporter() == "Darknet"){
-        DarknetExporter exporter(project);
-        exporter.moveToThread(export_thread);
-        exporter.generateLabelIds(export_dialog->getNamesFile());
-        exporter.setOutputFolder(export_dialog->getOutputFolder());
-        exporter.splitData(export_dialog->getValidationSplit(), export_dialog->getShuffle());
-        exporter.setExportUnlabelled(export_dialog->getExportUnlablled());
-        exporter.process();
-    }else if(export_dialog->getExporter() == "Pascal VOC"){
-        PascalVocExporter exporter(project);
-        exporter.moveToThread(export_thread);
-        exporter.setOutputFolder(export_dialog->getOutputFolder());
-        exporter.splitData(export_dialog->getValidationSplit(), export_dialog->getShuffle());
-        exporter.process(export_dialog->getCreateLabelMap());
-
-    }else if(export_dialog->getExporter().startsWith("COCO")){
-        CocoExporter exporter(project);
-        exporter.moveToThread(export_thread);
-        exporter.setOutputFolder(export_dialog->getOutputFolder());
-        exporter.splitData(export_dialog->getValidationSplit(), export_dialog->getShuffle());
-        exporter.setExportUnlabelled(export_dialog->getExportUnlablled());
-        exporter.process();
-    }
+    Exporter exporter(project);
+    exporter.moveToThread(export_thread);
+    exporter.setOutputFolder(export_dialog->getOutputFolder());
+    exporter.setDataName(projectName);
+    exporter.setContributer(export_dialog->getContributer());
+    exporter.export_labels();
 }
 
 void MainWindow::launchExportDialog(){
