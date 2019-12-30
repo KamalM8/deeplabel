@@ -493,7 +493,7 @@ void ImageLabel::drawBoundingBox(BoundingBox bbox, QColor colour){
     }
 
     painter.drawRect(scaled_bbox);
-    colour.setAlpha(35);
+    colour.setAlpha(50);
     painter.setBrush(QBrush(colour));
     painter.fillRect(scaled_bbox, painter.brush());
 

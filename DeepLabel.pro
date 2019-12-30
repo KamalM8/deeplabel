@@ -82,6 +82,7 @@ SOURCES += \
     src/cocoexporter.cpp \
     src/configattributedialog.cpp \
     src/configureclassdialog.cpp \
+    src/importer.cpp \
     src/exporter.cpp \
     src/imagedisplay.cpp \
     src/inputdialog.cpp \
@@ -99,6 +100,7 @@ HEADERS += \
     src/cocoexporter.h \
     src/configattributedialog.h \
     src/configureclassdialog.h \
+    src/importer.h \
     src/exporter.h \
     src/imagedisplay.h \
     src/inputdialog.h \

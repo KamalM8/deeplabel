@@ -86,14 +86,16 @@ bool Exporter::export_labels(){
     project->getMetaInfo(meta);
     for(auto& metaObject : meta){
         QJsonObject entry;
-        entry["class"] = metaObject.first;
-        for(auto& attribute: metaObject.second.attributes){
-            QJsonArray values;
-            for(auto& value: attribute.second)
-                values.append(value);
-            entry[attribute.first] = values;
+        if (metaObject.first != ""){
+            entry["class"] = metaObject.first;
+            for(auto& attribute: metaObject.second.attributes){
+                QJsonArray values;
+                for(auto& value: attribute.second)
+                    values.append(value);
+                entry[attribute.first] = values;
+            }
+            metaInfo.append(entry);
         }
-        metaInfo.append(entry);
     }
 
     labelFile["meta"] = metaInfo;

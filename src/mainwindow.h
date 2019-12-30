@@ -28,6 +28,7 @@
 #include <exportdialog.h>
 #include <multitracker.h>
 #include <imagedisplay.h>
+#include <src/importer.h>
 
 #include <QtAwesome.h>
 
@@ -98,6 +99,7 @@ private slots:
     void nextImage(void);
     void previousImage(void);
     void removeImage(void);
+    void importLabels();
 
     void addRemoveClass();
     void addRemoveAttributes();
