@@ -42,6 +42,7 @@ void InputDialog::fillAttributeForm(QString className){
 
 void InputDialog::load(bool selected){
     // load selected object data into input form
+    emit getMeta();
     if (selected){
         clearLayout(ui->gridLayout);
         ui->classComboBox->clear();
@@ -51,8 +52,8 @@ void InputDialog::load(bool selected){
                     ui->classComboBox->addItem(entry);
         ui->classComboBox->setCurrentText(box.classname);
         ui->idLineEdit->setText(QString::number(box.id));
+        fillAttributeForm(box.classname);
         if(!box.attributes.empty()){
-            fillAttributeForm(box.classname);
             for(auto &attribute : meta[box.classname].attributes)
                 selections[attribute.first]->setCurrentText(box.attributes[attribute.first]);
         }
@@ -60,7 +61,6 @@ void InputDialog::load(bool selected){
         // create default input form
         status = false;
         box.attributes.clear();
-        emit getMeta();
         ui->idLineEdit->setText(QString::number(emit getMaxID(ui->classComboBox->currentText()) + 1));
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     }
