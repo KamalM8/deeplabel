@@ -100,6 +100,28 @@ QPoint ImageLabel::getScaledImageLocation(QPoint location){
     return scaled_location;
 }
 
+bool ImageLabel::searchBboxes(QPoint location, QList<BoundingBox> bboxes, int& position) {
+    // TODO (Kamal): Optimize search
+    for (int i = 0; i<bboxes.size(); i++) {
+        if(bboxes[i].rect.contains(location)) {
+            position = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ImageLabel::searchBboxes(BoundingBox bbox, QList<BoundingBox> bboxes, int& position) {
+    // TODO (Kamal): Optimize search
+    for (int i = 0; i<bboxes.size(); i++) {
+        if(bboxes[i].rect == bbox.rect) {
+            position = i;
+            return true;
+        }
+    }
+    return false;
+}
+
 interactionState ImageLabel::checkMode(QPoint image_location)
 {
     // Select Mode: location within bounding boxes
@@ -110,39 +132,35 @@ interactionState ImageLabel::checkMode(QPoint image_location)
         scaled_pixmap = base_pixmap;
     }
     same_box = false;
+    bool found = false;
 
     BoundingBox bbox;
-    // TODO (Kamal) refactor this
 
     if(selected){
         // Slightly bigger box to take anchors
         // into consideration
-        for (int i = 0; i<bboxes.size(); i++) {
-            QRect temp = bboxes[i].rect + QMargins(10, 10, 10, 10);
-            if (temp.contains(image_location)){
-                if(selected_bbox.rect == bboxes[i].rect)
-                    same_box = true;
-                else
-                    same_box = false;
-                editbbox = &bboxes[i];
-                original_box = bboxes[i];
-                return interactionState::MODE_SELECT;
-            }
+        QList<BoundingBox> biggerBboxes;
+        for (auto bbox: bboxes){
+            BoundingBox bigBbox;
+            bigBbox.rect = bbox.rect + QMargins(10, 10, 10, 10);
+            biggerBboxes.append(bigBbox);
         }
+        found = searchBboxes(image_location, biggerBboxes, editbbox_position);
     }else{
-        // Original box
-        for (int i = 0; i<bboxes.size(); i++) {
-            if (bboxes[i].rect.contains(image_location)){
-                if(selected_bbox.rect == bboxes[i].rect)
-                    same_box = true;
-                else
-                    same_box = false;
-                editbbox = &bboxes[i];
-                original_box = bboxes[i];
-                return interactionState::MODE_SELECT;
-            }
-        }
+        // Search within original boxes
+        found = searchBboxes(image_location, bboxes, editbbox_position);
     }
+
+    if(found){
+        editbbox = &bboxes[editbbox_position];
+        original_box = bboxes[editbbox_position];
+        if(selected_bbox.rect == original_box.rect)
+            same_box = true;
+        else
+            same_box = false;
+        return interactionState::MODE_SELECT;
+    }
+
     return interactionState::MODE_DRAW;
 }
 
@@ -256,6 +274,12 @@ void ImageLabel::mousePressEvent(QMouseEvent *ev){
             drawEditLabel(*editbbox);
             selected = true;
             selected_bbox = *editbbox;
+
+            // selected box prioritized in list for editing
+            BoundingBox temp = bboxes[0];
+            bboxes[0] = bboxes[editbbox_position];
+            bboxes[editbbox_position] = temp;
+
         }else if (selected && bbox_state == WAIT_START && !same_box){
             // handle removing selection if you click into a different
             // bounding box
@@ -356,13 +380,13 @@ void ImageLabel::mouseReleaseEvent(QMouseEvent *ev){
             QPoint image_location = getScaledImageLocation(ev->pos());
             bbox_final = image_location;
 
-            //create ID dialog
-            inputDialog->load(false);
-            inputDialog->exec();
-
             QRect new_box = QRect(bbox_origin, bbox_final).normalized();
 
-            if(new_box.width() > 0 && new_box.height() > 0){
+            //create ID dialog
+            if(new_box.width() > 10 && new_box.height() > 10){
+
+                inputDialog->load(false);
+                inputDialog->exec();
 
                 if(inputDialog->status){
                     if(inputDialog->box.id == -1){
@@ -383,7 +407,15 @@ void ImageLabel::mouseReleaseEvent(QMouseEvent *ev){
                 dragTimer->stop();
                 bbox_state = WAIT_START;
                 region = NONE;
+                selected_bbox = *editbbox;
                 updateLabel(*editbbox);
+                bool found = searchBboxes(selected_bbox, bboxes, editbbox_position);
+                if (found) {
+                   BoundingBox temp = bboxes[0];
+                   bboxes[0] = bboxes[editbbox_position];
+                   bboxes[editbbox_position] = temp;
+                }
+
             }else if(selected && bbox_state == WAIT_START) {
                 hold_status = false;
                 ev->ignore();

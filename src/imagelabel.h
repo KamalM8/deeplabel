@@ -94,6 +94,7 @@ private:
     QList<BoundingBox> bboxes;
     BoundingBox selected_bbox;
     BoundingBox* editbbox;
+    int editbbox_position = 0;
     BoundingBox createbbox;
     BoundingBox original_box;
     void drawBoundingBox(BoundingBox bbox);
@@ -124,6 +125,8 @@ private:
 
     void drawBoundingBoxes(QPoint location);
     interactionState checkMode(QPoint location);
+    bool searchBboxes(QPoint location, QList<BoundingBox> bboxes, int& position);
+    bool searchBboxes(BoundingBox bbox, QList<BoundingBox> bboxes, int& position);
     proximity region;
     QTimer* dragTimer = new QTimer();
     QTimer* clickTimer = new QTimer();
