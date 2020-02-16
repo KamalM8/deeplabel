@@ -68,6 +68,7 @@ bool Importer::loadMeta(){
 bool Importer::loadLabels(){
     bool status = true;
     QJsonObject labels = data.value("annotation").toObject();
+    int i = 0;
     for(auto image_id: labels.keys()){
         for(auto bboxLabel : labels.value(image_id).toArray()){
             BoundingBox bbox;

@@ -1,12 +1,10 @@
 #include "exporter.h"
 
-Exporter::Exporter(LabelProject *project, QObject *parent) : QObject(parent)
+Exporter::Exporter(LabelProject *project, QObject* parent) : QObject(parent)
 {
-
     this->project = project;
     project->getImageList(images);
 }
-
 
 bool Exporter::setOutputFolder(const QString folder){
 
@@ -106,7 +104,6 @@ bool Exporter::export_labels(){
 
     int imageID;
     QJsonObject image;
-    //int i = 0;
 
     foreach(imageID, imagesID){
         std::map<int, BoundingBox> bboxes;

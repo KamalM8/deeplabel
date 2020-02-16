@@ -1124,3 +1124,36 @@ bool LabelProject::getImageBboxes(int imageId, std::map<int, BoundingBox> &boxMa
         }
     }
 }
+
+bool LabelProject::clearDatabaseLabels(){
+    QSqlQuery query(db);
+    bool res;
+    res = query.exec("DROP TABLE classes");
+    res &= query.exec("DROP TABLE ids");
+    res &= query.exec("DROP TABLE labels");
+    res &= query.exec("DROP TABLE meta");
+
+    res &= query.exec("CREATE TABLE classes (class_id INTEGER PRIMARY KEY ASC, class_name)");
+    res &= query.exec("CREATE TABLE meta (class_id INTEGER, attribute TEXT, value TEXT)");
+    res &= query.exec("CREATE table ids (class_id INTEGER, id INTEGER, key TEXT, value TEXT, UNIQUE(class_id, id, key, value))");
+    res &= query.exec("CREATE table labels (box_id INTEGER PRIMARY KEY, image_id INTEGER, class_id INTEGER, id INTEGER,"
+              "x INTEGER, y INTEGER, w INTEGER, h INTEGER)");
+
+   if(res){
+       QMessageBox successBox;
+       successBox.setText("Labels deleted successfully");
+       successBox.setStandardButtons(QMessageBox::Ok);
+       successBox.setDefaultButton(QMessageBox::Ok);
+       successBox.setIcon(QMessageBox::Information);
+       successBox.exec();
+       return true;
+   }else{
+       QMessageBox failureBox;
+       failureBox.setText("Label deletion failed");
+       failureBox.setStandardButtons(QMessageBox::Ok);
+       failureBox.setDefaultButton(QMessageBox::Ok);
+       failureBox.setIcon(QMessageBox::Critical);
+       failureBox.exec();
+       return false;
+   }
+}

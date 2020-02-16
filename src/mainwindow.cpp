@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this, SIGNAL(updateClassList(QList<QString>)), classDialog, SLOT(getClassList(QList<QString>)));
     connect(classDialog, SIGNAL(deleteClass(QString)), this, SLOT(removeClass(QString)));
     connect(this, SIGNAL(updateClassList(QList<QString>)), attrDialog, SLOT(getClassList(QList<QString>)));
+    connect(ui->actionClear_Labels, SIGNAL(triggered(bool)), this, SLOT(clearLabels()));
 
     // Tracking connections
     connect(ui->actionInit_Tracking, SIGNAL(triggered(bool)), this, SLOT(initTrackers()));
@@ -280,6 +281,7 @@ void MainWindow::openProject(QString fileName)
         connect(currentImage->inputDialog, SIGNAL(getMaxID(QString)), project, SLOT(sendMaxID(QString)));
         connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), currentImage->inputDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
         connect(project, SIGNAL(updateMeta(std::map<QString, MetaObject>)), attrDialog, SLOT(updateMeta(std::map<QString, MetaObject>)));
+        connect(this, SIGNAL(clearDatasetLabels()), project, SLOT(clearDatabaseLabels()));
     }
 
     return;
@@ -663,7 +665,22 @@ void MainWindow::handleExportDialog(){
     exporter.setOutputFolder(export_dialog->getOutputFolder());
     exporter.setDataName(projectName);
     exporter.setContributer(export_dialog->getContributer());
-    exporter.export_labels();
+    bool success = exporter.export_labels();
+    if (success){
+       QMessageBox successBox;
+       successBox.setText("Labels exported successfully");
+       successBox.setStandardButtons(QMessageBox::Ok);
+       successBox.setDefaultButton(QMessageBox::Ok);
+       successBox.setIcon(QMessageBox::Information);
+       successBox.exec();
+    }else{
+       QMessageBox failureBox;
+       failureBox.setText("Label export failed");
+       failureBox.setStandardButtons(QMessageBox::Ok);
+       failureBox.setDefaultButton(QMessageBox::Ok);
+       failureBox.setIcon(QMessageBox::Critical);
+       failureBox.exec();
+    }
 }
 
 void MainWindow::launchExportDialog(){
@@ -693,4 +710,23 @@ void MainWindow::importLabels(){
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::clearLabels(){
+    QMessageBox confirmMsgBox;
+    confirmMsgBox.setText("Are you sure you want to delete all labels?");
+    confirmMsgBox.setInformativeText("Labels will be removed. You can't undo this action.");
+    confirmMsgBox.setIcon(QMessageBox::Warning);
+    confirmMsgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    confirmMsgBox.setDefaultButton(QMessageBox::No);
+    int ret = confirmMsgBox.exec();
+    switch(ret){
+        case QMessageBox::Yes:
+            emit clearDatasetLabels();
+            updateLabels();
+            updateDisplay();
+            break;
+        case QMessageBox::No:
+            break;
+    }
 }

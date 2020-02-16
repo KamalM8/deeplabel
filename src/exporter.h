@@ -21,7 +21,7 @@ public:
     explicit Exporter(LabelProject *project, QObject *parent = nullptr);
 
 signals:
-    void export_progress(int);
+    void progress(int);
 
 public slots:
     bool setOutputFolder(QString folder);

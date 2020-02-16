@@ -25,7 +25,6 @@ void clearLayout(QLayout *layout) {
     }
 }
 
-
 void InputDialog::fillAttributeForm(QString className){
     // fill attributes and values for a given class
     int attribute_count = 0;

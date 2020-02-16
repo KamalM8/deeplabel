@@ -378,6 +378,7 @@
      <addaction name="actionAdd_Remove_Attributes"/>
     </widget>
     <addaction name="menuConfigure_Classes"/>
+    <addaction name="actionClear_Labels"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuImages"/>
@@ -624,6 +625,11 @@
    </property>
    <property name="toolTip">
     <string>import labels from a json file</string>
+   </property>
+  </action>
+  <action name="actionClear_Labels">
+   <property name="text">
+    <string>Clear Labels</string>
    </property>
   </action>
  </widget>

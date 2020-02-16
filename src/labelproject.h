@@ -85,6 +85,7 @@ public slots:
     bool getClassList(QList<QString> &classes);
     void sendMeta();
     bool checkDuplicateId(QString className, QString id);
+    bool clearDatabaseLabels();
 
 private:
     QSqlDatabase db;

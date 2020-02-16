@@ -16,8 +16,7 @@
 #include <opencv2/opencv.hpp>
 #include <imagelabel.h>
 #include <labelproject.h>
-
-#include <cocoexporter.h>
+#include "exporter.h"
 
 #include <detection/detectoropencv.h>
 #include <detection/detectorsetupdialog.h>
@@ -103,6 +102,7 @@ private slots:
 
     void addRemoveClass();
     void addRemoveAttributes();
+    void clearLabels();
 
     void addLabel(BoundingBox bbox);
     void removeLabel(BoundingBox bbox);
@@ -131,6 +131,7 @@ private slots:
 signals:
     void selectedClass(QString);
     void updateClassList(QList<QString>);
+    void clearDatasetLabels();
 
 };
 
