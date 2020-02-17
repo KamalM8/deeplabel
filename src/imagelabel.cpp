@@ -603,7 +603,7 @@ void ImageLabel::keyPressEvent(QKeyEvent *event)
     if(selected && (event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)){
         // Remove label using delete or backspace
         selected = false;
-        emit removeLabel(*editbbox);
+        emit removeLabel(selected_bbox);
         emit deselectLabel();
     }else if(current_mode == MODE_DRAW && event->key() == Qt::Key_Escape && bbox_state == DRAWING_BBOX){
         // Cancel label drawing on Escape key
