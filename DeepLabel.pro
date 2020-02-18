@@ -79,7 +79,6 @@ SOURCES += \
         imagelabel.cpp \
         exportdialog.cpp \
         multitracker.cpp \
-    src/cocoexporter.cpp \
     src/configattributedialog.cpp \
     src/configureclassdialog.cpp \
     src/importer.cpp \
@@ -97,7 +96,6 @@ HEADERS += \
         exportdialog.h \
         multitracker.h \
     src/MetaObject.h \
-    src/cocoexporter.h \
     src/configattributedialog.h \
     src/configureclassdialog.h \
     src/importer.h \
