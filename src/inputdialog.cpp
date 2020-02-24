@@ -131,22 +131,23 @@ void InputDialog::on_buttonBox_rejected()
 void InputDialog::on_idLineEdit_textEdited(const QString &user_id)
 {
     // make line edit field editable with valid id
-    bool duplicate = emit checkDuplicateId(ui->classComboBox->currentText(), user_id);
+    //bool duplicate = emit checkDuplicateId(ui->classComboBox->currentText(), user_id);
     bool ok;
     ui->idLineEdit->text().toInt(&ok);
 
     // Input help tooltips
-    if (duplicate)
-        QToolTip::showText(this->mapToParent(ui->gridLayout->geometry().bottomLeft()), "Error: ID is already used");
-    else if(!ok){
-        if(ui->idLineEdit->text() != "")
-            QToolTip::showText(this->mapToParent(ui->gridLayout->geometry().bottomLeft()), "Error: ID is not a number");
-        else
-            QToolTip::showText(this->mapToParent(ui->gridLayout->geometry().bottomLeft()), "");
-    }else
-        QToolTip::showText(this->mapToParent(ui->gridLayout->geometry().bottomLeft()), "");
+    //if (duplicate)
+        //QToolTip::showText(this->mapToParent(ui->gridLayout->geometry().bottomLeft()), "Error: ID is already used");
+    //else if(!ok){
+        //if(ui->idLineEdit->text() != "")
+            //QToolTip::showText(this->mapToParent(ui->gridLayout->geometry().bottomLeft()), "Error: ID is not a number");
+        //else
+            //QToolTip::showText(this->mapToParent(ui->gridLayout->geometry().bottomLeft()), "");
+    //}else
+        //QToolTip::showText(this->mapToParent(ui->gridLayout->geometry().bottomLeft()), "");
 
-    if (ok && !duplicate)
+    //if (ok && !duplicate)
+    if(ok)
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     else
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
