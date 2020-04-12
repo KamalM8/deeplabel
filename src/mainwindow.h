@@ -18,8 +18,6 @@
 #include <labelproject.h>
 #include "exporter.h"
 
-#include <detection/detectoropencv.h>
-#include <detection/detectorsetupdialog.h>
 #include <src/configureclassdialog.h>
 #include <src/configattributedialog.h>
 
@@ -51,7 +49,6 @@ private:
     MultiTracker *multitracker;
     QScrollArea *imageScrollArea;
     ImageDisplay *display;
-    DetectorOpenCV detector;
     ConfigAttributeDialog *attrDialog = new ConfigAttributeDialog;
     ConfigureClassDialog *classDialog = new ConfigureClassDialog;
     //InputDialog* inputDialog = new InputDialog;

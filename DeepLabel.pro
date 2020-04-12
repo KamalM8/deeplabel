@@ -85,8 +85,6 @@ SOURCES += \
     src/exporter.cpp \
     src/imagedisplay.cpp \
     src/inputdialog.cpp \
-    detection/detectoropencv.cpp \
-    detection/detectorsetupdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -102,8 +100,6 @@ HEADERS += \
     src/exporter.h \
     src/imagedisplay.h \
     src/inputdialog.h \
-    detection/detectoropencv.h \
-    detection/detectorsetupdialog.h
 
 FORMS += \
     src/configattributedialog.ui \
